@@ -41,7 +41,7 @@ const steps = [
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div class="relative">
+                <div class="relative hiw-image opacity-0 translate-y-8">
                     <div
                         class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500"
                     >
@@ -56,7 +56,7 @@ const steps = [
                 <div class="space-y-8">
                     {
                         steps.map((step, index) => (
-                            <div class="flex gap-4">
+                            <div class="hiw-step flex gap-4 opacity-0 translate-x-8">
                                 <div class="w-8 h-8 shrink-0 bg-white rounded-full flex items-center justify-center text-blue-600 font-bold text-sm shadow-md">
                                     {/* Using generic icon for steps as seen in design, or can use numbers/specific icons */}
                                     <svg
@@ -81,3 +81,33 @@ const steps = [
         </div>
     </div>
 </section>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to(".hiw-image", {
+        scrollTrigger: {
+            trigger: ".hiw-image",
+            start: "top 80%",
+        },
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out",
+    });
+
+    gsap.to(".hiw-step", {
+        scrollTrigger: {
+            trigger: ".hiw-step",
+            start: "top 80%",
+        },
+        x: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.15,
+        ease: "power2.out",
+    });
+</script>

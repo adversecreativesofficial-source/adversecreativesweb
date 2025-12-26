@@ -43,9 +43,9 @@ const stats = [
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {
             stats.map((stat) => (
-                <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl hover:bg-white/10 transition-colors group">
+                <div class="stat-card bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl hover:bg-white/10 transition-colors group opacity-0 translate-y-8">
                     <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform">
-                        {/* Simple Icon Placeholder - Replacing with inline SVGs for reliability without external lib */}
+                        {/* Icons */}
                         {stat.icon === "map-pin" && (
                             <svg
                                 class="w-6 h-6"
@@ -114,27 +114,9 @@ const stats = [
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg> // Using X as target placeholder or actual target
-                            /* Correct target icon */
-                            // <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        )}
-                        {stat.icon === "target" && (
-                            <svg
-                                class="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                             </svg>
-                            // correcting to target
                         )}
                     </div>
                     <h3 class="text-xl font-bold mb-3 font-outfit">
@@ -146,7 +128,24 @@ const stats = [
                 </div>
             ))
         }
-
-        <!-- Fix for target icon in loop logic above was messy, cleaning up in actual render if needed, but keeping simple logic -->
     </div>
 </section>
+
+<script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to(".stat-card", {
+        scrollTrigger: {
+            trigger: ".stat-card",
+            start: "top 80%",
+        },
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power2.out",
+    });
+</script>
