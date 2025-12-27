@@ -1,38 +1,47 @@
 ---
+interface Props {
+  brand: string;
+  subBrand: string;
+  contactButton: {
+    text: string;
+    link: string;
+  };
+}
 
+const { brand, subBrand, contactButton } = Astro.props;
 ---
 
 <nav
-    class="flex items-center justify-between px-6 py-4 md:px-12 max-w-7xl mx-auto w-full z-50 absolute top-0 left-0 right-0"
+  class="flex items-center justify-between px-6 py-4 md:px-12 max-w-7xl mx-auto w-full z-50 absolute top-0 left-0 right-0"
 >
-    <div class="flex items-center gap-2">
-        <div class="w-8 h-8 relative">
-            <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                class="w-full h-full text-white"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M12 2L2 22H22L12 2Z"
-                    fill="currentColor"
-                    fill-opacity="0.2"></path>
-                <path d="M12 6L4.5 21H19.5L12 6Z" fill="currentColor"></path>
-                <path d="M12 10L7 20H17L12 10Z" fill="white"></path>
-            </svg>
-        </div>
-        <span class="text-xl font-bold font-outfit tracking-wide"
-            >AdVerse <br />
-            <span
-                class="text-xs font-light text-gray-400 uppercase tracking-widest relative -top-1"
-                >Creators</span
-            ></span
-        >
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 relative">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        class="w-full h-full text-white"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 2L2 22H22L12 2Z" fill="currentColor" fill-opacity="0.2"
+        ></path>
+        <path d="M12 6L4.5 21H19.5L12 6Z" fill="currentColor"></path>
+        <path d="M12 10L7 20H17L12 10Z" fill="white"></path>
+      </svg>
     </div>
-
-    <button
-        class="bg-white text-black px-6 py-2 rounded-full font-semibold text-sm hover:bg-gray-200 transition-colors"
+    <span class="text-xl font-bold font-outfit tracking-wide text-white"
+      >{brand}
+      <br />
+      <span
+        class="text-xs font-light text-gray-400 uppercase tracking-widest relative -top-1"
+        >{subBrand}</span
+      ></span
     >
-        CONTACT US
-    </button>
+  </div>
+
+  <a
+    href={contactButton?.link || "#"}
+    class="bg-white text-black px-6 py-2 rounded-full font-semibold text-sm hover:bg-gray-200 transition-colors"
+  >
+    {contactButton?.text || "CONTACT US"}
+  </a>
 </nav>

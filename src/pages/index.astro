@@ -14,22 +14,22 @@ import { getEntry } from "astro:content";
 const entry = await getEntry("pages", "index");
 
 if (!entry) {
-	return Astro.redirect("/404");
+  return Astro.redirect("/404");
 }
 
-const { hero, stats, showcase, brands, howItWorks, features, footer } =
-	entry.data;
+const { hero, stats, showcase, brands, howItWorks, features, footer, navbar } =
+  entry.data;
 ---
 
 <Layout>
-	<Navbar />
-	<main class="overflow-hidden">
-		<Hero {...hero} />
-		<Stats {...stats} />
-		<Showcase {...showcase} />
-		<Brands {...brands} />
-		<HowItWorks {...howItWorks} />
-		<Features {...features} />
-	</main>
-	<Footer {...footer} />
+  <Navbar {...navbar} />
+  <main class="overflow-hidden">
+    <Hero {...hero} />
+    <Stats {...stats} />
+    <Showcase {...showcase} />
+    <Brands {...brands} />
+    <HowItWorks {...howItWorks} />
+    <Features {...features} />
+  </main>
+  <Footer {...footer} />
 </Layout>

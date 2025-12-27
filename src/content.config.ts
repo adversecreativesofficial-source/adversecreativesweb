@@ -4,6 +4,14 @@ import { glob } from "astro/loaders";
 const pages = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/pages" }),
   schema: z.object({
+    navbar: z.object({
+      brand: z.string(),
+      subBrand: z.string(),
+      contactButton: z.object({
+        text: z.string(),
+        link: z.string(),
+      }),
+    }),
     hero: z.object({
       title: z.string(),
       highlight: z.string(),
@@ -97,6 +105,21 @@ const pages = defineCollection({
         phone: z.string(),
         email: z.string(),
       }),
+      ctaButtons: z
+        .array(
+          z.object({
+            text: z.string(),
+            link: z.string(),
+            variant: z.enum(["primary", "secondary"]),
+          })
+        )
+        .optional(),
+      socials: z
+        .object({
+          linkedin: z.string(),
+          facebook: z.string(),
+        })
+        .optional(),
     }),
   }),
 });

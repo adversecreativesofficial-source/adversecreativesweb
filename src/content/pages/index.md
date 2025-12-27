@@ -1,4 +1,11 @@
 ---
+navbar:
+  brand: "AdVerse"
+  subBrand: "Creators"
+  contactButton:
+    text: "CONTACT US"
+    link: "https://wa.me/+919188232874?text=Hello%20I%20would%20love%20to%20know%20more%20about%20Adverse"
+
 hero:
   title: "While They Wait."
   highlight: "Your Brand Wins."
@@ -118,9 +125,19 @@ features:
 footer:
   title: "Make Your Brand Unmissable."
   subtitle: "No scrolling. No skipping. Just visibility that works."
+  ctaButtons:
+    - text: "CONTACT US"
+      link: "https://wa.me/+919188232874?text=Hello%20I%20would%20love%20to%20know%20more%20about%20Adverse"
+      variant: "primary"
+    - text: "REQUEST A DEMO"
+      link: "https://wa.me/+919188232874?text=Hello%20I%20would%20love%20to%20know%20more%20about%20Adverse"
+      variant: "secondary"
   companyName: "AdVerse"
-  companyDesc: "Unique street culture seeking impactful brand experiences that capture attention and drive engagement."
+  companyDesc: "Turning everyday spaces into impactful brand experiences that capture attention and drive engagement."
   contact:
-    phone: "+1 (555) 123-4567"
+    phone: "+919188232874"
     email: "support@adverse-media.com"
+  socials:
+    linkedin: "#"
+    facebook: "#"
 ---
