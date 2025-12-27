@@ -3,8 +3,16 @@ import type { CollectionEntry } from "astro:content";
 
 type Props = CollectionEntry<"pages">["data"]["showcase"];
 
-const { label, title, highlight, description, mainImage, features } =
-  Astro.props as Props;
+const {
+  label,
+  title,
+  highlight,
+  description,
+  mainImage,
+  videoUrl,
+  rightImage,
+  features,
+} = Astro.props as Props;
 ---
 
 <section class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
@@ -26,34 +34,62 @@ const { label, title, highlight, description, mainImage, features } =
     <div
       class="showcase-item lg:col-span-2 relative rounded-3xl overflow-hidden group h-[500px] opacity-0 translate-y-8"
     >
-      <!-- Placeholder image using a gradient and some text to simulate the screen content -->
       <div
         class="absolute inset-0 bg-gray-900 flex items-center justify-center"
       >
-        <img
-          src={mainImage}
-          alt="City Street Screen"
-          class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-        />
-        <!-- Play button overlay -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div
-            class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:bg-white/30 transition-all"
-          >
-            <svg
-              class="w-6 h-6 text-white ml-1"
-              fill="currentColor"
-              viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg
-            >
-          </div>
-        </div>
+        {
+          videoUrl ? (
+            <video
+              src={videoUrl}
+              poster={mainImage}
+              autoplay
+              loop
+              muted
+              playsinline
+              class="w-full h-full object-cover"
+            />
+          ) : (
+            <>
+              <img
+                src={mainImage}
+                alt="City Street Screen"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+              />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:bg-white/30 transition-all">
+                  <svg
+                    class="w-6 h-6 text-white ml-1"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          )
+        }
       </div>
     </div>
 
     <!-- Right Side Info Card -->
     <div
-      class="showcase-item bg-blue-900/40 backdrop-blur-sm border border-blue-500/20 rounded-3xl p-8 flex flex-col justify-center relative overflow-hidden opacity-0 translate-y-8"
+      class="showcase-item bg-blue-900/40 backdrop-blur-sm border border-blue-500/20 rounded-3xl p-8 flex flex-col justify-end relative overflow-hidden opacity-0 translate-y-8"
     >
+      <!-- Background Image if present -->
+      {
+        rightImage && (
+          <div class="absolute inset-0">
+            <img
+              src={rightImage}
+              alt=""
+              class="w-full h-full object-cover opacity-40 mix-blend-overlay"
+            />
+            <div class="absolute inset-0 bg-gradient-to-b from-blue-900/80 to-black/80" />
+          </div>
+        )
+      }
+
       <!-- Decor -->
       <div
         class="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl"
@@ -91,9 +127,6 @@ const { label, title, highlight, description, mainImage, features } =
           }
         </ul>
       </div>
-      <span class="text-gray-300 mt-auto pt-6 text-sm opacity-60"
-        >Powered by analytics</span
-      >
     </div>
   </div>
 

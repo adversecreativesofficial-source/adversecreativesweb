@@ -36,9 +36,11 @@ showcase:
   highlight: "Your Visibility."
   description: "High-quality digital displays placed strategically for maximum impact."
   mainImage: "https://images.unsplash.com/photo-1510279895818-f24f5a896489?q=80&w=2670&auto=format&fit=crop"
+  videoUrl: "https://videos.pexels.com/video-files/3195394/3195394-uhd_2560_1440_25fps.mp4"
+  rightImage: "https://images.unsplash.com/photo-1492551557933-34265f7af79e?q=80&w=2670&auto=format&fit=crop"
   features:
-    - text: "Large 4K digital screens"
-    - text: "Powered by analytics"
+    - text: "Large, eye-level digital screens"
+    - text: "Runs all day, every day"
     - text: "No competing brands on the same screen"
 
 brands:
