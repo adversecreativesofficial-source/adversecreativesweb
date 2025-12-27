@@ -6,59 +6,80 @@ type Props = CollectionEntry<"pages">["data"]["howItWorks"];
 const { label, title, image, steps } = Astro.props as Props;
 ---
 
-<section class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-  <div class="bg-blue-600 rounded-3xl p-8 md:p-16 relative overflow-hidden">
-    <!-- Background Circles -->
-    <div
-      class="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-50 translate-x-1/2 -translate-y-1/2"
-    >
-    </div>
+<section class="bg-gradient-to-br from-[#050a1f] via-blue-900 to-blue-800 p-[25px] w-full">
+  <div class="bg-black rounded-[3rem] py-20">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+        
+        <!-- Header -->
+        <div class="text-center mb-16">
+          <span class="text-blue-400 font-bold uppercase tracking-widest text-sm mb-2 block">
+            {label}
+          </span>
+          <h2 class="text-4xl md:text-5xl font-bold font-outfit text-white">
+            {title}
+          </h2>
+        </div>
 
-    <div class="relative z-10">
-      <div class="text-center mb-12">
-        <span
-          class="text-blue-200 font-semibold uppercase tracking-wider text-sm"
-          >{label}</span
-        >
-        <h2 class="text-3xl md:text-5xl font-bold mt-2 font-outfit text-white">
-          {title}
-        </h2>
-      </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          
+          <!-- Image Section -->
+          <div class="relative hiw-image opacity-0 translate-y-8">
+              <div class="rounded-3xl overflow-hidden shadow-2xl h-full min-h-[400px]">
+              <img
+                src={image}
+                alt="How it works"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div class="relative hiw-image opacity-0 translate-y-8">
-          <div
-            class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl overflow-hidden shadow-2xl transform rotate-[-2deg] hover:rotate-0 transition-transform duration-500"
-          >
-            <img
-              src={image}
-              alt="How it works"
-              class="w-full h-auto object-cover"
-            />
+          <!-- Steps Section -->
+          <div class="space-y-0 relative">
+            <!-- Continuous Vertical Line -->
+            <div class="absolute left-8 top-8 bottom-8 w-px border-l-2 border-dashed border-gray-600 hidden md:block"></div>
+
+            {
+              steps.map((step, index) => (
+                <div class="hiw-step flex gap-6 md:gap-8 relative pb-12 last:pb-0 opacity-0 translate-x-8">
+                  <!-- Icon -->
+                  <div class="relative z-10 shrink-0">
+                    <div class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg border-4 border-[#1e2345] ring-2 ring-blue-600/30">
+                       {/* Using generic icons for consistency */}
+                       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          {index === 0 && (
+                             // Upload
+                             <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>
+                          )}
+                          {index === 1 && (
+                             // Clock / Time
+                             <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>
+                          )}
+                          {index === 2 && (
+                             // Rotation / Repeat
+                             <><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></>
+                          )}
+                          {index === 3 && (
+                             // Update / Edit
+                             <><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></>
+                          )}
+                        </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- Text -->
+                  <div class="pt-3">
+                    <h4 class="text-xl md:text-2xl font-bold font-outfit text-white mb-2">
+                      {step.title}
+                    </h4>
+                    <p class="text-blue-100/80 text-lg leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
+                </div>
+              ))
+            }
           </div>
         </div>
-
-        <div class="space-y-8">
-          {
-            steps.map((step, index) => (
-              <div class="hiw-step flex gap-4 opacity-0 translate-x-8">
-                <div class="w-8 h-8 shrink-0 bg-white rounded-full flex items-center justify-center text-blue-600 font-bold text-sm shadow-md">
-                  {/* Using generic icon for steps as seen in design, or can use numbers/specific icons */}
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="text-xl font-bold font-outfit text-white mb-2">
-                    {step.title}
-                  </h4>
-                  <p class="text-blue-100">{step.desc}</p>
-                </div>
-              </div>
-            ))
-          }
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -88,7 +109,7 @@ const { label, title, image, steps } = Astro.props as Props;
     x: 0,
     opacity: 1,
     duration: 0.6,
-    stagger: 0.15,
+    stagger: 0.2,
     ease: "power2.out",
   });
 </script>

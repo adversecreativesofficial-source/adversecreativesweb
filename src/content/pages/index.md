@@ -88,11 +88,11 @@ howItWorks:
   image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2670&auto=format&fit=crop"
   steps:
     - title: "Upload your ad via our platform"
-      desc: "Simply upload your creative in just a few clicks."
+      desc: "Easily upload your creative in just a few clicks."
     - title: "Your ad runs every 5 minutes"
-      desc: "Reach your customer frequently without being intrusive."
+      desc: "Reach your audience frequently without being intrusive."
     - title: "Nonstop ad rotation"
-      desc: "Keeps your content fresh and engaging all day long."
+      desc: "Keep your content fresh and engaging all day long."
     - title: "Update or change creatives anytime"
       desc: "Refresh your message instantly whenever you want."
 
@@ -103,10 +103,10 @@ features:
   description: "Premium digital screens in cafes, salons, gyms and airports — where audiences are present, waiting and attentive."
   items:
     - title: "Hyper-local targeting"
-      img: "https://images.unsplash.com/photo-1496442226666-8d4a0e62e6e9?q=80&w=2670&auto=format&fit=crop"
+      img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2670&auto=format&fit=crop"
       icon: "map-pin"
     - title: "Real-time content updates"
-      img: "https://images.unsplash.com/photo-1559136555-930b7dd085bd?q=80&w=2670&auto=format&fit=crop"
+      img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop"
       icon: "zap"
     - title: "Dynamic Ad Rotation"
       img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2670&auto=format&fit=crop"
@@ -117,7 +117,7 @@ features:
 
 footer:
   title: "Make Your Brand Unmissable."
-  subtitle: "No scrolling. No skipping. Just watching. Get ready."
+  subtitle: "No scrolling. No skipping. Just visibility that works."
   companyName: "AdVerse"
   companyDesc: "Unique street culture seeking impactful brand experiences that capture attention and drive engagement."
   contact:
