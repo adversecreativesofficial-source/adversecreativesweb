@@ -152,64 +152,39 @@ const { title, highlight, description, buttons } = Astro.props as Props;
   const tl = gsap.timeline();
 
   tl.from("h1 > span", {
-    y: 50,
+    y: 30,
     opacity: 0,
-    duration: 1,
-    stagger: 0.2,
-    ease: "power3.out",
+    duration: 0.8,
+    stagger: 0.1,
+    ease: "power2.out",
   })
     .from(
       "p",
-      { y: 20, opacity: 0, duration: 0.8, ease: "power2.out" },
-      "-=0.6"
+      { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" },
+      "-=0.4"
     )
     .from(
       ".float-top",
-      { y: -30, opacity: 0, duration: 1, ease: "elastic.out(1, 0.5)" },
-      "-=0.6"
+      { y: -20, opacity: 0, duration: 0.8, ease: "power2.out" },
+      "-=0.4"
     )
     .from(
       ".float-left",
-      { x: -30, opacity: 0, duration: 1, ease: "elastic.out(1, 0.5)" },
-      "-=0.8"
+      { x: -20, opacity: 0, duration: 0.8, ease: "power2.out" },
+      "-=0.6"
     )
     .from(
       ".float-right",
-      { x: 30, opacity: 0, duration: 1, ease: "elastic.out(1, 0.5)" },
-      "-=0.8"
+      { x: 20, opacity: 0, duration: 0.8, ease: "power2.out" },
+      "-=0.6"
     )
     .from(
       "a",
-      { y: 20, opacity: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" },
-      "-=0.4"
+      { y: 20, opacity: 0, duration: 0.4, stagger: 0.1, ease: "power2.out" },
+      "-=0.2"
     );
 
-  // Floating animations - More subtle for the "Icon on Hill" look
-  gsap.to(".float-top", {
-    y: "-=8",
-    duration: 3,
-    repeat: -1,
-    yoyo: true,
-    ease: "sine.inOut",
-  });
-
-  gsap.to(".float-left", {
-    y: "-=6",
-    duration: 3.5,
-    repeat: -1,
-    yoyo: true,
-    ease: "sine.inOut",
-    delay: 0.5,
-  });
-
-  gsap.to(".float-right", {
-    y: "-=6",
-    duration: 3.5,
-    repeat: -1,
-    yoyo: true,
-    ease: "sine.inOut",
-    delay: 1,
-  });
+  // Removed infinite floating animations to reduce lag
 </script>
 
 <style>
