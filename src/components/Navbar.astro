@@ -76,9 +76,25 @@ const { brand, subBrand, contactButton } = Astro.props;
     <a
       id="navbar-cta"
       href={contactButton?.link || "#"}
-      class="bg-white text-black px-6 py-2 rounded-full font-semibold text-sm hover:opacity-90"
+      class="bg-transparent md:bg-white text-white md:text-black p-2 md:px-6 md:py-2 rounded-full font-semibold text-sm hover:opacity-90 flex items-center justify-center transition-color"
+      aria-label={contactButton?.text || "Contact Us"}
     >
-      {contactButton?.text || "CONTACT US"}
+      <span class="hidden md:inline">{contactButton?.text || "CONTACT US"}</span
+      >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-5 h-5 md:hidden"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+        ></path>
+      </svg>
     </a>
   </div>
 </nav>
@@ -150,12 +166,22 @@ const { brand, subBrand, contactButton } = Astro.props;
     background-color: rgba(0, 0, 0, 0.05); /* light gray hover */
   }
 
-  /* Invert CTA Button */
-  :global([data-theme="light"]) #navbar-cta {
-    background-color: #0f172a !important; /* slate-900 */
-    color: #ffffff !important;
+  /* Invert CTA Button - Desktop Only */
+  @media (min-width: 768px) {
+    :global([data-theme="light"]) #navbar-cta {
+      background-color: #0f172a !important; /* slate-900 */
+      color: #ffffff !important;
+    }
+    :global([data-theme="light"]) #navbar-cta:hover {
+      background-color: #1e293b !important; /* slate-800 */
+    }
   }
-  :global([data-theme="light"]) #navbar-cta:hover {
-    background-color: #1e293b !important; /* slate-800 */
+
+  /* Mobile CTA Light Mode - Dark Icon on Transparent */
+  @media (max-width: 767px) {
+    :global([data-theme="light"]) #navbar-cta {
+      color: #000000 !important;
+      background-color: transparent !important;
+    }
   }
 </style>

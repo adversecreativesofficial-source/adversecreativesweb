@@ -21,7 +21,7 @@ const { title, highlight, list } = Astro.props as Props;
     <!-- Carousel Container -->
     <div
       id="brands-carousel"
-      class="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full"
+      class="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide w-full"
       style="scroll-behavior: smooth;"
     >
       {
@@ -36,7 +36,7 @@ const { title, highlight, list } = Astro.props as Props;
               <img
                 src={brand.logo}
                 alt={brand.name}
-                class="w-full h-full object-cover transition-all duration-300"
+                class="w-full h-full object-cover object-bottom transition-all duration-300"
                 loading="lazy"
               />
             </a>

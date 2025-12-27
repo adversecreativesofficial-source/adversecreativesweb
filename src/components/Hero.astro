@@ -8,7 +8,7 @@ const { title, highlight, description, buttons } = Astro.props as Props;
 
 <section
   id="hero-section"
-  class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#00040f] pt-32 transition-colors duration-300"
+  class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#00040f] pt-0 md:pt-32 transition-colors duration-300"
 >
   <!-- Background Ambient Effects -->
   <!-- Subtle ambient glow at corners -->
@@ -24,7 +24,7 @@ const { title, highlight, description, buttons } = Astro.props as Props;
   <!-- ARC SYSTEM CONTAINER -->
   <!-- Positioned to ensure the arcs curve upwards. 'translate-y' adjusts how much of the hill is visible. -->
   <div
-    class="absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-[15%] w-full h-full flex items-center justify-center z-0 pointer-events-none select-none"
+    class="absolute top-[25%] md:top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-[20%] w-full h-full flex items-center justify-center z-0 pointer-events-none select-none opacity-40 md:opacity-100"
   >
     <!-- 1. OUTER ARC (Largest, Faint Background) -->
     <div
@@ -39,7 +39,7 @@ const { title, highlight, description, buttons } = Astro.props as Props;
       <!-- ICONS -->
       <!-- Lightning (Top Center) -->
       <div
-        class="absolute -top-[1%] left-1/2 transform -translate-x-1/2 flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-blue-500/50 rounded-full shadow-[0_0_40px_rgba(59,130,246,0.4)] text-blue-400 z-50 float-top"
+        class="absolute -top-[5%] md:-top-[3%] left-1/2 transform -translate-x-1/2 flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-blue-500/50 rounded-full shadow-[0_0_40px_rgba(59,130,246,0.4)] text-blue-400 z-50 float-top"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +111,7 @@ const { title, highlight, description, buttons } = Astro.props as Props;
   </div>
 
   <!-- Content -->
-  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-24 md:mt-48">
+  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-8 md:mt-48">
     <h1
       class="text-4xl md:text-6xl lg:text-7xl font-bold font-outfit mb-6 leading-tight"
     >
