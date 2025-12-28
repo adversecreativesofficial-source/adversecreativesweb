@@ -1,45 +1,52 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import brand1 from "../assets/Brands/1.png";
+import brand2 from "../assets/Brands/2.png";
+import brand3 from "../assets/Brands/3.png";
+import brand4 from "../assets/Brands/4.png";
+import brand5 from "../assets/Brands/5.png";
+import brand6 from "../assets/Brands/6.png";
+
+// Duplicate for continuous scroll
+const brandImages = [brand1, brand2, brand3, brand4, brand5, brand6];
+
+// Create a double list for the marquee effect
+const marqueeImages = [...brandImages, ...brandImages];
 
 type Props = CollectionEntry<"pages">["data"]["brands"];
 
-const { title, highlight, list } = Astro.props as Props;
+const { title, highlight } = Astro.props as Props;
 ---
 
 <section
   id="brands-section"
   class="py-12 pb-20 border-y border-white/5 bg-white/5 overflow-hidden transition-colors duration-300"
 >
-  <div class="max-w-7xl mx-auto px-6 md:px-12 text-center mb-8">
-    <h3 class="text-xl font-semibold text-white">
+  <div class="max-w-7xl mx-auto px-6 md:px-12 text-center mb-16">
+    <h3
+      class="font-poppins font-semibold text-[36px] leading-[54px]"
+    >
       {title}
-      <span class="text-blue-500">{highlight}</span>
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-[#4068FC] to-[#00229D]"
+        >{highlight}</span
+      >
     </h3>
   </div>
 
-  <div class="relative group w-full">
-    <!-- Carousel Container -->
-    <div
-      id="brands-carousel"
-      class="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide w-full"
-      style="scroll-behavior: smooth;"
-    >
+  <div class="relative w-full overflow-hidden mask-fade">
+    <div class="flex animate-marquee hover:pause whitespace-nowrap">
       {
-        list.map((brand) => (
-          <div class="snap-start shrink-0 box-border w-1/2 md:w-1/4 lg:w-1/5 p-4 flex justify-center">
-            <a
-              href={brand.link || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="w-full aspect-[16/9] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-0 transition-transform hover:scale-105 duration-300 overflow-hidden"
-            >
-              <img
-                src={brand.logo}
-                alt={brand.name}
-                class="w-full h-full object-cover object-bottom transition-all duration-300"
-                loading="lazy"
+        marqueeImages.map((brand, index) => (
+          <div class="inline-block w-[200px] md:w-[250px] p-4 shrink-0">
+            <div class="w-full aspect-[16/9] flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-0 transition-transform hover:scale-105 duration-300 overflow-hidden">
+              <Image
+                src={brand}
+                alt={`Brand logo ${index + 1}`}
+                class="w-full h-full object-cover object-bottom"
               />
-            </a>
+            </div>
           </div>
         ))
       }
@@ -47,62 +54,40 @@ const { title, highlight, list } = Astro.props as Props;
   </div>
 </section>
 
-<script>
-  const carousel = document.getElementById("brands-carousel");
-  let intervalId: number | undefined;
-
-  const startAutoScroll = () => {
-    // Clear any existing interval to prevent duplicates
-    if (intervalId) clearInterval(intervalId);
-
-    // Only scroll if there's more content than fits
-    if (carousel && carousel.scrollWidth <= carousel.clientWidth) return;
-
-    intervalId = window.setInterval(() => {
-      if (!carousel) return;
-
-      const item = carousel.querySelector(".snap-start");
-      const scrollAmount = item ? (item as HTMLElement).offsetWidth : 300;
-      const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-
-      if (carousel.scrollLeft >= maxScroll - 10) {
-        carousel.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
-      }
-    }, 2000); // 2 seconds per scroll
-  };
-
-  const stopAutoScroll = () => {
-    if (intervalId) clearInterval(intervalId);
-  };
-
-  if (carousel) {
-    // Check initially and on resize
-    startAutoScroll();
-    window.addEventListener("resize", startAutoScroll);
-
-    // Pause on interaction
-    carousel.addEventListener("mouseenter", stopAutoScroll);
-    carousel.addEventListener("mouseleave", startAutoScroll);
-    carousel.addEventListener("touchstart", stopAutoScroll);
-    carousel.addEventListener("touchend", () => {
-      // Wait a bit before restarting after touch
-      setTimeout(startAutoScroll, 3000);
-    });
-  }
-</script>
-
 <style>
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
   }
 
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+  .hover\:pause:hover {
+    animation-play-state: paused;
+  }
+
+  /* Gradient mask for smooth fade check */
+  .mask-fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
   }
 
   :global([data-theme="light"]) #brands-section {

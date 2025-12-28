@@ -118,7 +118,7 @@ features:
     - title: "Dynamic Ad Rotation"
       img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2670&auto=format&fit=crop"
       icon: "refresh-cw"
-    - title: "73% higher brand recall"
+    - title: "2.5× higher brand recall"
       img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop"
       icon: "trending-up"
 
@@ -126,10 +126,10 @@ footer:
   title: "Make Your Brand Unmissable."
   subtitle: "No scrolling. No skipping. Just visibility that works."
   ctaButtons:
-    - text: "CONTACT US"
+    - text: "Connect with Us"
       link: "https://wa.me/+919188232874?text=Hello%20I%20would%20love%20to%20know%20more%20about%20Adverse"
       variant: "primary"
-    - text: "REQUEST A DEMO"
+    - text: "Secure Your Spot"
       link: "https://wa.me/+919188232874?text=Hello%20I%20would%20love%20to%20know%20more%20about%20Adverse"
       variant: "secondary"
   companyName: "AdVerse"
