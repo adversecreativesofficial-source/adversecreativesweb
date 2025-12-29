@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
-import VectorImage from "../assets/howItWorks/vectorImage.svg";
+import showcaseLogo from "../assets/showcase/showcase-logo.svg";
 
 type Props = NonNullable<CollectionEntry<"pages">["data"]["showcase"]>;
 
@@ -90,11 +90,11 @@ const {
       <!-- Background Image if present -->
       {
         rightImage && (
-          <div class="absolute inset-0 rounded-[12px] border border-blue-500/20 overflow-hidden">
+          <div class="absolute inset-0 rounded-[12px] border border-blue-500/20 overflow-hidden bg-gradient-to-b from-[#3253CC] to-[#011661]">
             <Image
-              src={VectorImage}
-              alt=""
-              class="w-full h-full object-cover"
+              src={showcaseLogo}
+              alt="Showcase Logo"
+              class="absolute top-0 left-0 w-auto h-auto"
             />
           </div>
         )

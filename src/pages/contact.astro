@@ -18,7 +18,11 @@ const { hero, contactSection, mapSection } = contactEntry.data as any;
 ---
 
 <Layout>
-  {navbar && <Navbar {...navbar} />}
+  {
+    navbar && (
+      <Navbar {...navbar} contactButton={{ text: "Back to Home", link: "/" }} />
+    )
+  }
 
   <main class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
