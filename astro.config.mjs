@@ -10,6 +10,7 @@ export default defineConfig({
         server: {
             allowedHosts: [
                 "devserver-preview--adverse-creatives.netlify.app",
+                "devserver-preview--adversecreatives.netlify.app"
             ],
         },
     },
