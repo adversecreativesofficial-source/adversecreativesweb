@@ -13,18 +13,6 @@ import "../styles/global.css";
     <link rel="stylesheet" />
   </head>
   <body class="antialiased">
-    <script is:inline>
-      const theme = (() => {
-        if (
-          typeof localStorage !== "undefined" &&
-          localStorage.getItem("theme")
-        ) {
-          return localStorage.getItem("theme");
-        }
-        return "dark";
-      })();
-      document.documentElement.setAttribute("data-theme", theme);
-    </script>
     <slot />
   </body>
 </html>

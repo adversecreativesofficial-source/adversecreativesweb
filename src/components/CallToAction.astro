@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from "astro:content";
+import footerFrame from "../assets/Footer/footer_frame.svg";
+
+type Props = NonNullable<CollectionEntry<"pages">["data"]["callToAction"]>;
+
+const { title, subtitle, ctaButtons } = Astro.props as Props;
+---
+
+<div
+  class="relative py-20 px-6 overflow-hidden mx-4 md:mx-[80px] my-10 md:my-[40px] rounded-3xl bg-cover bg-center bg-no-repeat"
+  style={`background-image: url(${footerFrame.src});`}
+>
+  <div class="max-w-4xl mx-auto text-center relative z-10">
+    <h2 class="text-3xl md:text-5xl font-bold font-outfit mb-4 text-white">
+      {title}
+    </h2>
+    <p class="text-gray-300 mb-8 text-lg">{subtitle}</p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      {
+        ctaButtons?.map((btn: any) => (
+          <a
+            href={btn.link}
+            class={`px-8 py-3 rounded-full font-bold tracking-wide w-full sm:w-auto border-2 ${
+              btn.variant === "primary"
+                ? "text-white border-transparent"
+                : "bg-white text-[#3253CC] border-[#3253CC]"
+            }`}
+            style={
+              btn.variant === "primary"
+                ? {
+                    background:
+                      "linear-gradient(#3253CC, #3253CC) padding-box, linear-gradient(to right, #859EF8, #3253CC) border-box",
+                  }
+                : {}
+            }
+          >
+            {btn.text}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</div>

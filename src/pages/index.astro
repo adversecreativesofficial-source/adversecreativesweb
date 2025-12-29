@@ -7,6 +7,7 @@ import Showcase from "../components/Showcase.astro";
 import Brands from "../components/Brands.astro";
 import HowItWorks from "../components/HowItWorks.astro";
 import Features from "../components/Features.astro";
+import CallToAction from "../components/CallToAction.astro";
 import Footer from "../components/Footer.astro";
 
 import { getEntry } from "astro:content";
@@ -17,19 +18,29 @@ if (!entry) {
   return Astro.redirect("/404");
 }
 
-const { hero, stats, showcase, brands, howItWorks, features, footer, navbar } =
-  entry.data;
+const {
+  hero,
+  stats,
+  showcase,
+  brands,
+  howItWorks,
+  features,
+  footer,
+  navbar,
+  callToAction,
+} = entry.data;
 ---
 
 <Layout>
-  <Navbar {...navbar} />
+  {navbar && <Navbar {...navbar} />}
   <main class="overflow-hidden">
-    <Hero {...hero} />
-    <Stats {...stats} />
-    <Showcase {...showcase} />
-    <Brands {...brands} />
-    <HowItWorks {...howItWorks} />
-    <Features {...features} />
+    {hero && <Hero {...hero} />}
+    {stats && <Stats {...stats} />}
+    {showcase && <Showcase {...showcase} />}
+    {brands && <Brands {...brands} />}
+    {howItWorks && <HowItWorks {...howItWorks} />}
+    {features && <Features {...features} />}
   </main>
-  <Footer {...footer} />
+  {callToAction && <CallToAction {...callToAction} />}
+  {footer && <Footer {...footer} />}
 </Layout>

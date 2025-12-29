@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "cms": "stackbit dev"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
@@ -15,5 +16,9 @@
     "gsap": "^3.13.0",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@stackbit/cms-git": "^1.0.36",
+    "@stackbit/types": "^2.1.15"
   }
 }
