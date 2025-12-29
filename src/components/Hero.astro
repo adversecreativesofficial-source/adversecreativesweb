@@ -1,128 +1,45 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import heroSvg from "../assets/hero_svg.svg";
 
-type Props = CollectionEntry<"pages">["data"]["hero"];
+type Props = NonNullable<CollectionEntry<"pages">["data"]["hero"]> & {
+  backgroundImage?: ImageMetadata;
+};
 
-const { title, highlight, description, buttons } = Astro.props as Props;
+const { title, highlight, description, buttons, backgroundImage } =
+  Astro.props as Props;
+
+const bgImage = backgroundImage || heroSvg;
 ---
 
 <section
   id="hero-section"
-  class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#00040f] pt-0 md:pt-32 transition-colors duration-300"
+  class="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-black transition-colors duration-300"
 >
-  <!-- Background Ambient Effects -->
-  <!-- Subtle ambient glow at corners -->
+  <!-- Background Image -->
   <div
-    class="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[120px] pointer-events-none z-0 opacity-50"
+    class="absolute top-0 left-0 w-full h-full flex items-start justify-center pt-0 md:pt-0 z-0 pointer-events-none select-none"
   >
-  </div>
-  <div
-    class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] pointer-events-none z-0 opacity-50"
-  >
-  </div>
-
-  <!-- ARC SYSTEM CONTAINER -->
-  <!-- Positioned to ensure the arcs curve upwards. 'translate-y' adjusts how much of the hill is visible. -->
-  <div
-    class="absolute top-[25%] md:top-[60%] left-1/2 transform -translate-x-1/2 -translate-y-[20%] w-full h-full flex items-center justify-center z-0 pointer-events-none select-none opacity-40 md:opacity-100"
-  >
-    <!-- 1. OUTER ARC (Largest, Faint Background) -->
-    <div
-      class="absolute w-[180vw] h-[180vw] md:w-[1500px] md:h-[1500px] rounded-full border border-white/5 bg-[#010618] shadow-[0_-20px_80px_rgba(30,58,138,0.1)]"
-    >
-    </div>
-
-    <!-- 2. MIDDLE ARC (Medium, Slightly brighter) -->
-    <div
-      class="absolute w-[140vw] h-[140vw] md:w-[1200px] md:h-[1200px] rounded-full border border-white/5 bg-[#030b2e] shadow-[0_-20px_80px_rgba(30,58,138,0.2)]"
-    >
-      <!-- ICONS -->
-      <!-- Lightning (Top Center) -->
-      <div
-        class="absolute -top-[5%] md:-top-[3%] left-1/2 transform -translate-x-1/2 flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-blue-500/50 rounded-full shadow-[0_0_40px_rgba(59,130,246,0.4)] text-blue-400 z-50 float-top"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-6 h-6 md:w-8 md:h-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-      </div>
-
-      <!-- Chart (Left) -->
-      <div
-        class="absolute top-[16%] left-[12%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-blue-500/30 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.2)] text-blue-400 z-50 float-left"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-6 h-6 md:w-8 md:h-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          ></path>
-        </svg>
-      </div>
-
-      <!-- Megaphone (Right) -->
-      <div
-        class="absolute top-[16%] right-[12%] transform translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-indigo-500/30 rounded-full shadow-[0_0_30px_rgba(99,102,241,0.2)] text-indigo-400 z-50 float-right"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-6 h-6 md:w-8 md:h-8"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
-          ></path>
-        </svg>
-      </div>
-    </div>
-
-    <!-- 3. INNER ARC (Smallest, Main Stage) -->
-    <!-- Gradient background creates the 'hill' look, darker at bottom, glowing at top -->
-    <div
-      class="absolute w-[100vw] h-[100vw] md:w-[900px] md:h-[900px] rounded-full border-t border-white/10 bg-gradient-to-b from-[#051139] via-[#020617] to-[#00040f] shadow-[0_-20px_100px_rgba(59,130,246,0.3)] box-border"
-    >
-      <!-- Central Glow Spotlight -->
-      <div
-        class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3/4 h-1/2 bg-blue-600/10 blur-[80px] rounded-full"
-      >
-      </div>
-    </div>
+    <Image
+      src={bgImage}
+      alt="Hero Background"
+      class={backgroundImage
+        ? "absolute w-full h-full object-cover opacity-100 inset-0"
+        : "w-[90%] md:w-[80%] h-auto md:h-[85%] object-contain opacity-100"}
+    />
   </div>
 
   <!-- Content -->
-  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-8 md:mt-48">
+  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
     <h1
-      class="text-4xl md:text-6xl lg:text-7xl font-bold font-outfit mb-6 leading-tight"
+      class="text-4xl md:text-[48px] font-bold font-outfit mb-6 leading-tight mt-26"
     >
       <span class="block text-white">{title}</span>
-      <span
-        class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400"
-        >{highlight}</span
-      >
+      <span class="block text-white">{highlight}</span>
     </h1>
 
-    <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+    <p class="text-[#B4B4B4] text-lg md:text-xl max-w-2xl mx-auto mb-10">
       {description}
     </p>
 
@@ -131,11 +48,19 @@ const { title, highlight, description, buttons } = Astro.props as Props;
         buttons.map((btn) => (
           <a
             href={btn.link}
-            class={`px-8 py-3 rounded-full font-bold tracking-wide transition-colors w-full sm:w-auto ${
+            class={`px-8 py-3 rounded-full font-bold tracking-wide w-full sm:w-auto border-2 ${
               btn.variant === "primary"
-                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-[0_0_30px_rgba(37,99,235,0.5)] hover:shadow-[0_0_40px_rgba(37,99,235,0.7)]"
-                : "bg-white text-black hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                ? "text-white border-transparent"
+                : "bg-white text-[#3253CC] border-[#3253CC]"
             }`}
+            style={
+              btn.variant === "primary"
+                ? {
+                    background:
+                      "linear-gradient(#3253CC, #3253CC) padding-box, linear-gradient(to right, #859EF8, #3253CC) border-box",
+                  }
+                : {}
+            }
           >
             {btn.text}
           </a>
@@ -144,74 +69,3 @@ const { title, highlight, description, buttons } = Astro.props as Props;
     </div>
   </div>
 </section>
-
-<style>
-  :global([data-theme="light"]) #hero-section {
-    background-color: #ffffff !important;
-  }
-
-  /* Text Overrides */
-  :global([data-theme="light"]) #hero-section h1 .text-white {
-    color: #000000 !important;
-  }
-
-  :global([data-theme="light"]) #hero-section p.text-gray-400 {
-    color: #4b5563 !important; /* gray-600 */
-  }
-
-  /* Button Overrides */
-  :global([data-theme="light"]) #hero-section a.bg-white {
-    background-color: #0f172a !important; /* slate-900 */
-    color: #ffffff !important;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1) !important;
-  }
-  :global([data-theme="light"]) #hero-section a.bg-white:hover {
-    background-color: #1e293b !important; /* slate-800 */
-  }
-
-  /* Arc Backgrounds Overrides */
-
-  /* Outer Arc */
-  :global([data-theme="light"]) #hero-section .bg-\[\#010618\] {
-    background-color: #eff6ff !important; /* blue-50 */
-    border-color: #bfdbfe !important; /* blue-200 */
-    box-shadow: 0 -20px 80px rgba(30, 58, 138, 0.1) !important;
-  }
-
-  /* Middle Arc */
-  :global([data-theme="light"]) #hero-section .bg-\[\#030b2e\] {
-    background-color: #dbeafe !important; /* blue-100 */
-    border-color: #93c5fd !important; /* blue-300 */
-    box-shadow: 0 -20px 80px rgba(30, 58, 138, 0.1) !important;
-  }
-
-  /* Inner Arc (Gradient) */
-  :global([data-theme="light"]) #hero-section .from-\[\#051139\] {
-    background: linear-gradient(
-      to bottom,
-      #dbeafe,
-      /* blue-100 */ #eff6ff,
-      /* blue-50 */ #f8fafc /* slate-50 */
-    ) !important;
-    border-top-color: #93c5fd !important; /* blue-300 - stronger border */
-    box-shadow: 0 -20px 100px rgba(59, 130, 246, 0.2) !important; /* slightly stronger shadow */
-  }
-
-  /* Floating Icons Text/Border Overrides */
-  :global([data-theme="light"]) #hero-section .float-top,
-  :global([data-theme="light"]) #hero-section .float-left,
-  :global([data-theme="light"]) #hero-section .float-right {
-    background: #ffffff !important;
-    border-color: #bfdbfe !important; /* blue-200 */
-    box-shadow: 0 0 30px rgba(37, 99, 235, 0.15) !important;
-  }
-
-  :global([data-theme="light"]) #hero-section .float-top,
-  :global([data-theme="light"]) #hero-section .float-left {
-    color: #2563eb !important; /* blue-600 */
-  }
-
-  :global([data-theme="light"]) #hero-section .float-right {
-    color: #4f46e5 !important; /* indigo-600 */
-  }
-</style>
