@@ -13,14 +13,18 @@ import GSAPProvider from "../components/utilities/GSAPProvider.astro";
     <title>AdVerse - Your Brand Wins</title>
     <script is:inline>
       // Mark JS active so reveal targets can hide before paint (no FOUC).
-      // Failsafe reveals everything shortly after load if the engine never runs.
+      // Failsafe: if the reveal engine never marked itself ready (script failed
+      // to load/run), force everything visible. Only fires on real failure, so
+      // normal scroll reveals are preserved.
       (function () {
         var d = document.documentElement;
         d.classList.add("gsap-reveal");
         window.addEventListener("load", function () {
           setTimeout(function () {
-            d.classList.add("gsap-failsafe");
-          }, 2000);
+            if (!window.__gsapRevealReady) {
+              d.classList.add("gsap-failsafe");
+            }
+          }, 2500);
         });
       })();
     </script>

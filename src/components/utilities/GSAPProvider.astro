@@ -1,8 +1,11 @@
 ---
 // Global scroll-reveal engine.
 // Any element marked with `data-reveal` (fade/slide up) or `data-reveal-card`
-// (staggered grid entrance) is animated in on scroll. Honors reduced-motion,
-// and never leaves content hidden if the engine fails (failsafe + no-JS safe).
+// (staggered grid entrance) animates in on scroll. Honors reduced-motion, and
+// never leaves content hidden: the initial hidden state is CSS-only (no lingering
+// inline styles), and a readiness-gated failsafe reveals everything if the engine
+// fails to run. The failsafe is only triggered on real failure (the engine never
+// marked itself ready), so normal below-the-fold scroll reveals are preserved.
 ---
 
 <script>
@@ -20,37 +23,50 @@
   ) {
     const els = gsap.utils.toArray<HTMLElement>(selector);
     if (!els.length) return;
-    gsap.set(els, { opacity: 0, y: opts.y });
     ScrollTrigger.batch(els, {
       start: "top 90%",
       once: true,
       onEnter: (batch) =>
-        gsap.to(batch, {
-          opacity: 1,
-          y: 0,
-          duration: opts.duration,
-          stagger: opts.stagger,
-          ease: "power2.out",
-          overwrite: true,
-        }),
+        gsap.fromTo(
+          batch,
+          { opacity: 0, y: opts.y },
+          {
+            opacity: 1,
+            y: 0,
+            duration: opts.duration,
+            stagger: opts.stagger,
+            ease: "power2.out",
+            overwrite: true,
+          }
+        ),
     });
   }
 
   if (reduce) {
-    // Reveal everything immediately; CSS media query also covers this.
+    // Reveal everything immediately; CSS media query covers this too.
     root.classList.add("gsap-failsafe");
   } else {
     reveal("[data-reveal]", { y: 24, duration: 0.7, stagger: 0.08 });
     reveal("[data-reveal-card]", { y: 32, duration: 0.6, stagger: 0.07 });
     requestAnimationFrame(() => ScrollTrigger.refresh());
   }
+
+  // Tell the Layout failsafe the engine is up, so it won't force-reveal.
+  (window as any).__gsapRevealReady = true;
 </script>
 
 <style is:global>
-  /* Hidden only while the JS engine is active and before failsafe kicks in. */
+  /* Initial hidden state (CSS-only) while the engine is active and healthy. */
   html.gsap-reveal:not(.gsap-failsafe) [data-reveal],
   html.gsap-reveal:not(.gsap-failsafe) [data-reveal-card] {
     opacity: 0;
+  }
+  /* Failsafe / reduced-motion: force everything visible, overriding any inline
+     opacity GSAP may have set mid-animation before failing. */
+  html.gsap-failsafe [data-reveal],
+  html.gsap-failsafe [data-reveal-card] {
+    opacity: 1 !important;
+    transform: none !important;
   }
   @media (prefers-reduced-motion: reduce) {
     html.gsap-reveal [data-reveal],

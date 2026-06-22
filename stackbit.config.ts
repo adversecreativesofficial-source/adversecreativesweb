@@ -252,6 +252,25 @@ export default defineStackbitConfig({
                       },
                     },
                     {
+                      name: "franchises",
+                      type: "list",
+                      items: {
+                        type: "object",
+                        fields: [
+                          { name: "id", type: "string", required: true },
+                          { name: "name", type: "string", required: true },
+                          {
+                            name: "status",
+                            type: "enum",
+                            options: ["active", "coming_soon"],
+                            required: true,
+                          },
+                          { name: "order", type: "number", required: false },
+                          { name: "tagline", type: "string", required: false },
+                        ],
+                      },
+                    },
+                    {
                       name: "locations",
                       type: "list",
                       items: {
@@ -262,6 +281,13 @@ export default defineStackbitConfig({
                           { name: "venue", type: "string", required: true },
                           { name: "footfall", type: "string", required: true },
                           { name: "link", type: "string", required: true },
+                          {
+                            name: "franchise",
+                            type: "enum",
+                            options: ["bangalore", "kerala"],
+                            required: false,
+                          },
+                          { name: "image", type: "string", required: false },
                         ],
                       },
                     },

@@ -183,7 +183,10 @@ const pages = defineCollection({
             venue: z.string(),
             footfall: z.string(),
             link: z.string(),
-            franchise: z.enum(["bangalore", "kerala"]).optional(),
+            // Matches a franchise `id` in the `franchises` array above. Kept as a
+            // free string (not an enum) so new franchises can be added without
+            // touching this schema.
+            franchise: z.string().optional(),
             image: z.string().optional(),
           })
         ),
