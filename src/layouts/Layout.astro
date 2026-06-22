@@ -1,0 +1,43 @@
+---
+import "../styles/global.css";
+import GSAPProvider from "../components/utilities/GSAPProvider.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>AdVerse - Your Brand Wins</title>
+    <script is:inline>
+      // Mark JS active so reveal targets can hide before paint (no FOUC).
+      // Failsafe reveals everything shortly after load if the engine never runs.
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("gsap-reveal");
+        window.addEventListener("load", function () {
+          setTimeout(function () {
+            d.classList.add("gsap-failsafe");
+          }, 2000);
+        });
+      })();
+    </script>
+  </head>
+  <body class="antialiased">
+    <slot />
+    <GSAPProvider />
+  </body>
+</html>
+
+<style is:global>
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Outfit", sans-serif;
+  }
+</style>

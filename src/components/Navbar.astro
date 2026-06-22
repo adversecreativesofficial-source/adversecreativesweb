@@ -1,0 +1,55 @@
+---
+import { Image } from "astro:assets";
+import adverseLogo from "../assets/adverse-logo.svg";
+
+import type { CollectionEntry } from "astro:content";
+
+type Props = NonNullable<CollectionEntry<"pages">["data"]["navbar"]>;
+
+const { brand, subBrand, contactButton } = Astro.props as Props;
+---
+
+<nav
+  id="main-navbar"
+  class="flex items-center justify-between px-6 py-4 md:px-12 w-full z-50 absolute top-0 left-0 right-0 transition-all duration-300"
+>
+  <div class="flex items-center gap-2">
+    <a href="/" class="block w-32 md:w-40">
+      <Image
+        src={adverseLogo}
+        alt={`${brand} Logo`}
+        class="w-full h-auto object-contain"
+        id="navbar-logo-img"
+        loading="eager"
+      />
+    </a>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <a
+      id="navbar-cta"
+      href={contactButton?.link || "#"}
+      class="bg-white text-[#3253CC] border border-[#3253CC] p-2 md:px-6 md:py-2 rounded-full font-semibold text-sm hover:opacity-90 flex items-center justify-center transition-colors"
+      aria-label={contactButton?.text || "Contact Us"}
+    >
+      <span class="hidden md:inline">{contactButton?.text || "CONTACT US"}</span
+      >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-5 h-5 md:hidden"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+        ></path>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<style></style>

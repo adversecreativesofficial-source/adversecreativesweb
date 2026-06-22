@@ -1,0 +1,158 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import showcaseLogo from "../assets/showcase/showcase-logo.svg";
+
+type Props = NonNullable<CollectionEntry<"pages">["data"]["showcase"]>;
+
+const {
+  label,
+  title,
+  highlight,
+  description,
+  mainImage,
+  videoUrl,
+  rightImage,
+  features,
+} = Astro.props as Props;
+---
+
+<section
+  id="showcase-section"
+  class="py-20 px-6 md:px-12 max-w-7xl mx-auto transition-colors duration-300"
+>
+  <div class="text-center mb-16 flex flex-col items-center gap-2">
+    <span
+      class="font-poppins font-medium text-[20px] leading-[30px] text-[#3253CC]"
+      >{label}</span
+    >
+    <h2
+      class="font-poppins font-semibold text-[36px] leading-[54px] text-[#232323]"
+    >
+      {title}
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-[#4068FC] to-[#00229D]"
+        >{highlight}</span
+      >
+    </h2>
+    <p
+      class="font-poppins font-normal text-[20px] leading-[30px] text-[#565656] max-w-2xl mx-auto"
+    >
+      {description}
+    </p>
+  </div>
+
+  <div class="flex flex-col lg:grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Large Image/Video Area -->
+    <div
+      class="showcase-item lg:col-span-2 relative rounded-3xl overflow-hidden group h-[500px] opacity-0 translate-y-8"
+    >
+      <div class="absolute inset-0 bg-gray-50 flex items-center justify-center">
+        {
+          videoUrl ? (
+            <video
+              src={videoUrl}
+              poster={mainImage}
+              autoplay
+              loop
+              muted
+              playsinline
+              class="w-full h-full object-cover"
+            />
+          ) : (
+            <>
+              <img
+                src={mainImage}
+                alt="City Street Screen"
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:bg-white/30 transition-all">
+                  <svg
+                    class="w-6 h-6 text-white ml-1"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Right Side Info Card -->
+    <div
+      class="showcase-item flex flex-col justify-end relative overflow-visible opacity-0 translate-y-8"
+    >
+      <!-- Background Image if present -->
+      {
+        rightImage && (
+          <div class="absolute inset-0 rounded-[12px] border border-blue-500/20 overflow-hidden bg-gradient-to-b from-[#3253CC] to-[#011661]">
+            <Image
+              src={showcaseLogo}
+              alt="Showcase Logo"
+              class="absolute top-0 left-0 w-auto h-auto"
+            />
+          </div>
+        )
+      }
+
+      <!-- Content Wrapper with Padding -->
+      <div
+        class="relative lg:absolute lg:inset-0 p-8 flex flex-col justify-end pointer-events-none"
+      >
+        <h3 class="text-2xl font-bold mb-6 font-outfit text-white">
+          You can't skip the screen while waiting for coffee.
+        </h3>
+
+        <ul class="space-y-4">
+          {
+            features.map((feature) => (
+              <li class="flex items-start gap-3">
+                <svg
+                  class="w-6 h-6 text-blue-400 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d={
+                      feature.icon ||
+                      "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    }
+                  />
+                </svg>
+                <span class="text-white/90">{feature.text}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to(".showcase-item", {
+      scrollTrigger: {
+        trigger: ".showcase-item",
+        start: "top 80%",
+      },
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "power2.out",
+    });
+  </script>
+</section>

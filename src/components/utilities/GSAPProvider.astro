@@ -1,0 +1,61 @@
+---
+// Global scroll-reveal engine.
+// Any element marked with `data-reveal` (fade/slide up) or `data-reveal-card`
+// (staggered grid entrance) is animated in on scroll. Honors reduced-motion,
+// and never leaves content hidden if the engine fails (failsafe + no-JS safe).
+---
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const root = document.documentElement;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function reveal(
+    selector: string,
+    opts: { y: number; duration: number; stagger: number }
+  ) {
+    const els = gsap.utils.toArray<HTMLElement>(selector);
+    if (!els.length) return;
+    gsap.set(els, { opacity: 0, y: opts.y });
+    ScrollTrigger.batch(els, {
+      start: "top 90%",
+      once: true,
+      onEnter: (batch) =>
+        gsap.to(batch, {
+          opacity: 1,
+          y: 0,
+          duration: opts.duration,
+          stagger: opts.stagger,
+          ease: "power2.out",
+          overwrite: true,
+        }),
+    });
+  }
+
+  if (reduce) {
+    // Reveal everything immediately; CSS media query also covers this.
+    root.classList.add("gsap-failsafe");
+  } else {
+    reveal("[data-reveal]", { y: 24, duration: 0.7, stagger: 0.08 });
+    reveal("[data-reveal-card]", { y: 32, duration: 0.6, stagger: 0.07 });
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+  }
+</script>
+
+<style is:global>
+  /* Hidden only while the JS engine is active and before failsafe kicks in. */
+  html.gsap-reveal:not(.gsap-failsafe) [data-reveal],
+  html.gsap-reveal:not(.gsap-failsafe) [data-reveal-card] {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html.gsap-reveal [data-reveal],
+    html.gsap-reveal [data-reveal-card] {
+      opacity: 1 !important;
+    }
+  }
+</style>

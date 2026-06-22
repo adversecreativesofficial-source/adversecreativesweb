@@ -1,0 +1,95 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import feature1Img from "../assets/features/1.png";
+import feature2Img from "../assets/features/2.png";
+import feature3Img from "../assets/features/3.png";
+import feature4Img from "../assets/features/4.png";
+
+import feature1Icon from "../assets/features/1.svg";
+import feature2Icon from "../assets/features/2.svg";
+import feature3Icon from "../assets/features/3.svg";
+import feature4Icon from "../assets/features/4.svg";
+
+const featureImages = [feature1Img, feature2Img, feature3Img, feature4Img];
+const featureIcons = [feature1Icon, feature2Icon, feature3Icon, feature4Icon];
+
+type Props = NonNullable<CollectionEntry<"pages">["data"]["features"]>;
+
+const { label, title, highlight, description, items } = Astro.props as Props;
+---
+
+<section
+  id="features-section"
+  class="py-20 px-6 md:px-12 max-w-7xl mx-auto transition-colors duration-300"
+>
+  <div class="mb-12 flex flex-col items-start gap-2 max-w-4xl">
+    <span
+      class="font-poppins font-medium text-[20px] leading-[30px] text-[#3253CC]"
+      >{label}</span
+    >
+    <h2
+      class="font-poppins font-semibold text-[36px] leading-[54px] text-[#232323]"
+    >
+      {title}
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-[#4068FC] to-[#00229D]"
+        >{highlight}</span
+      >
+    </h2>
+    <p
+      class="font-poppins font-normal text-[20px] leading-[30px] text-[#565656] max-w-3xl"
+    >
+      {description}
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {
+      items.map((feature, index) => (
+        <div class="feature-card group relative h-80 rounded-2xl overflow-hidden cursor-pointer opacity-0 translate-y-8">
+          <img
+            src={featureImages[index].src}
+            alt={feature.title}
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+
+          <div class="absolute bottom-0 left-0 p-6 w-full">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center mb-4 text-white">
+              <img
+                src={featureIcons[index].src}
+                alt={feature.title}
+                class="w-5 h-5"
+              />
+            </div>
+            <h3 class="text-lg font-bold font-outfit leading-tight text-white">
+              {feature.title}
+            </h3>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.to(".feature-card", {
+    scrollTrigger: {
+      trigger: ".feature-card",
+      start: "top 85%",
+    },
+    y: 0,
+    opacity: 1,
+    duration: 0.8,
+    stagger: 0.2,
+    ease: "power2.out",
+  });
+</script>
+
+<style></style>

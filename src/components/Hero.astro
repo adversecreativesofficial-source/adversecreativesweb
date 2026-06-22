@@ -1,0 +1,131 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import heroSvg from "../assets/hero_svg.svg";
+import mobile_view_hero_vector from "../assets/mobile_view_hero_vector.svg";
+
+type Props = NonNullable<CollectionEntry<"pages">["data"]["hero"]> & {
+  backgroundImage?: ImageMetadata;
+};
+
+const { title, highlight, description, buttons, backgroundImage } =
+  Astro.props as Props;
+
+const bgImage = backgroundImage || heroSvg;
+const mobileBgImage = mobile_view_hero_vector;
+---
+
+<section
+  id="hero-section"
+  class="relative min-h-screen flex items-center justify-center overflow-hidden bg-black transition-colors duration-300"
+>
+  <!-- Background Image -->
+  <div
+    data-hero-bg
+    class="absolute top-0 left-0 w-full h-full flex items-start justify-center pt-0 md:pt-0 z-0 pointer-events-none select-none"
+  >
+    {
+      backgroundImage ? (
+        <Image
+          src={bgImage}
+          alt="Hero Background"
+          class="absolute w-full h-full object-cover opacity-100 inset-0"
+        />
+      ) : (
+        <>
+          <Image
+            src={mobileBgImage}
+            alt="Hero Background"
+            class="w-full h-full pb-[50%] md:hidden"
+          />
+          <Image
+            src={heroSvg}
+            alt="Hero Background"
+            class="w-[90%] md:w-[80%] h-auto hidden md:block"
+          />
+        </>
+      )
+    }
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+    <h1
+      class="text-4xl md:text-[48px] font-bold font-outfit mb-6 leading-tight mt-26"
+    >
+      <span class="block text-white" data-hero-line>{title}</span>
+      <span class="block text-white" data-hero-line>{highlight}</span>
+    </h1>
+
+    <p
+      class="text-[#B4B4B4] text-lg md:text-xl max-w-2xl mx-auto mb-10"
+      data-hero-line
+    >
+      {description}
+    </p>
+
+    <div
+      class="flex flex-col sm:flex-row items-center justify-center gap-4"
+      data-hero-line
+    >
+      {
+        buttons.map((btn) => (
+          <a
+            href={btn.link}
+            class={`px-8 py-3 rounded-full font-bold tracking-wide w-full sm:w-auto border-2 ${
+              btn.variant === "primary"
+                ? "text-white border-transparent"
+                : "bg-white text-[#3253CC] border-[#3253CC]"
+            }`}
+            style={
+              btn.variant === "primary"
+                ? {
+                    background:
+                      "linear-gradient(#3253CC, #3253CC) padding-box, linear-gradient(to right, #859EF8, #3253CC) border-box",
+                  }
+                : {}
+            }
+          >
+            {btn.text}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const section = document.getElementById("hero-section");
+  if (section && !reduce) {
+    const lines = section.querySelectorAll("[data-hero-line]");
+    gsap.from(lines, {
+      opacity: 0,
+      y: 32,
+      duration: 0.9,
+      stagger: 0.12,
+      ease: "power3.out",
+      delay: 0.1,
+    });
+
+    // Subtle parallax drift on the background as the hero scrolls away.
+    const bg = section.querySelector("[data-hero-bg]");
+    if (bg) {
+      gsap.to(bg, {
+        yPercent: 18,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    }
+  }
+</script>

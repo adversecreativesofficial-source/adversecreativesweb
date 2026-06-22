@@ -1,0 +1,165 @@
+---
+// Immersive infinite marquee (21st.dev-style) of the venue types AdVerse
+// screens live in. Pure CSS transform loop — GPU-friendly, pauses on hover,
+// and is disabled under prefers-reduced-motion.
+interface Props {
+  items?: string[];
+  heading?: string;
+}
+
+const {
+  heading = "Seen where people actually are",
+  items = [
+    "Cafés",
+    "Restaurants",
+    "Gyms & Fitness",
+    "Clinics & Hospitals",
+    "Education Institutes",
+    "Real Estate",
+    "Salons & Spas",
+    "Co-working Spaces",
+    "Hotels",
+    "Retail Stores",
+  ],
+} = Astro.props as Props;
+
+// Duplicate the list so the -50% translate loop is seamless.
+const loop = [...items, ...items];
+---
+
+<section
+  class="relative bg-[#0A1330] py-16 overflow-hidden"
+  aria-label={heading}
+  data-reveal-section
+>
+  <div
+    class="absolute inset-0 opacity-60 pointer-events-none"
+    style="background: radial-gradient(60% 120% at 50% 0%, rgba(50,83,204,0.45), transparent 70%);"
+  >
+  </div>
+
+  <p
+    class="relative z-10 text-center font-['Poppins'] font-bold text-[12px] tracking-[0.18em] uppercase text-[#8FA6FF] mb-10"
+    data-reveal
+  >
+    {heading}
+  </p>
+
+  <div class="marquee relative z-10" data-reveal>
+    <div class="marquee__track">
+      {
+        loop.map((item, i) => (
+          <span
+            class="marquee__item"
+            aria-hidden={i >= items.length ? "true" : "false"}
+          >
+            <span class="marquee__dot" />
+            {item}
+          </span>
+        ))
+      }
+    </div>
+    <!-- Edge fade -->
+    <div class="marquee__fade marquee__fade--left"></div>
+    <div class="marquee__fade marquee__fade--right"></div>
+  </div>
+</section>
+
+<style>
+  .marquee {
+    --gap: 2.5rem;
+    --speed: 38s;
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+
+  .marquee__track {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    padding-right: var(--gap);
+    flex-shrink: 0;
+    min-width: 100%;
+    width: max-content;
+    animation: marquee-scroll var(--speed) linear infinite;
+    will-change: transform;
+  }
+
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    white-space: nowrap;
+    font-family: "Outfit", sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.5rem, 4vw, 2.75rem);
+    letter-spacing: -0.01em;
+    color: rgba(255, 255, 255, 0.92);
+    transition: color 0.3s ease;
+  }
+
+  .marquee__item:hover {
+    color: #859ef8;
+  }
+
+  .marquee__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: #3253cc;
+    flex-shrink: 0;
+  }
+
+  .marquee__fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 12%;
+    pointer-events: none;
+  }
+  .marquee__fade--left {
+    left: 0;
+    background: linear-gradient(to right, #0a1330, transparent);
+  }
+  .marquee__fade--right {
+    right: 0;
+    background: linear-gradient(to left, #0a1330, transparent);
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 1rem;
+    }
+  }
+</style>

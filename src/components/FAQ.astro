@@ -1,0 +1,152 @@
+---
+interface Props {
+  title: string;
+  items: {
+    question: string;
+    answer: string;
+  }[];
+}
+
+const { title, items } = Astro.props;
+---
+
+<section id="faq-section" class="py-20 px-6 md:px-12 max-w-4xl mx-auto">
+  <div class="text-center mb-12">
+    <h2
+      class="font-poppins font-semibold text-[36px] leading-[54px] text-[#232323]"
+    >
+      {title}
+    </h2>
+  </div>
+
+  <div class="flex flex-col gap-4">
+    {
+      items.map((item, index) => (
+        <div class="faq-item bg-white rounded-xl overflow-hidden border border-[#EAEAEA] transition-all duration-300">
+          <button
+            class="faq-button w-full px-8 py-6 flex items-center justify-between text-left focus:outline-none transition-colors duration-300 hover:bg-gray-50 text-[#232323]"
+            aria-expanded="false"
+            aria-controls={`faq-content-${index}`}
+          >
+            <span class="font-poppins font-medium text-lg text-current transition-colors duration-300 question-text">
+              {item.question}
+            </span>
+            <svg
+              width="14"
+              height="8"
+              viewBox="0 0 14 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="transform transition-transform duration-300 arrow-icon text-[#232323]"
+            >
+              <path
+                d="M1 1L7 7L13 1"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <div
+            id={`faq-content-${index}`}
+            class="faq-content h-0 overflow-hidden transition-all duration-300 ease-in-out"
+          >
+            <div class="px-8 pb-6 font-poppins font-normal text-base text-[#565656]">
+              {item.answer}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .faq-item.active {
+    background-color: #f0f4ff; /* Light blue background for active item */
+    border-color: #4068fc;
+  }
+
+  .faq-item.active .faq-button {
+    background-color: transparent; /* Keep transparent to show item bg */
+  }
+
+  .faq-item.active .question-text {
+    color: #4068fc; /* Blue text */
+  }
+
+  .faq-item.active .arrow-icon {
+    transform: rotate(180deg);
+    stroke: #4068fc; /* Blue arrow */
+    color: #4068fc;
+  }
+
+  /* Optional: initial state for first item if desired, but JS handles logic */
+</style>
+
+<script>
+  function setupFAQ() {
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    faqItems.forEach((item) => {
+      const button = item.querySelector(".faq-button");
+      const content = item.querySelector(".faq-content") as HTMLElement;
+
+      if (!button || !content) return;
+
+      button.addEventListener("click", () => {
+        const isActive = item.classList.contains("active");
+
+        // Close all other items
+        faqItems.forEach((otherItem) => {
+          if (otherItem !== item) {
+            otherItem.classList.remove("active");
+            const otherButton = otherItem.querySelector(".faq-button");
+            const otherContent = otherItem.querySelector(
+              ".faq-content",
+            ) as HTMLElement;
+
+            if (otherButton) otherButton.setAttribute("aria-expanded", "false");
+            if (otherContent) otherContent.style.height = "0px";
+          }
+        });
+
+        // Toggle current item
+        if (isActive) {
+          item.classList.remove("active");
+          button.setAttribute("aria-expanded", "false");
+          content.style.height = "0px";
+        } else {
+          item.classList.add("active");
+          button.setAttribute("aria-expanded", "true");
+          content.style.height = content.scrollHeight + "px";
+        }
+      });
+    });
+
+    // Optionally open the first item by default
+    if (faqItems.length > 0) {
+      const firstItem = faqItems[0];
+      const firstButton = firstItem.querySelector(".faq-button");
+      const firstContent = firstItem.querySelector(
+        ".faq-content",
+      ) as HTMLElement;
+
+      if (firstItem && firstButton && firstContent) {
+        // First item already starts closed based on HTML, let's open it
+        firstItem.classList.add("active");
+        firstButton.setAttribute("aria-expanded", "true");
+        // Needs a slight delay or requestAnimationFrame to calculate scrollHeight correctly if rendered deeply
+        // But usually safe to just set it.
+        // To be safe with transitions, we can set strict height or auto.
+        // For smoothest transition from 0, fixed height is best.
+        firstContent.style.height = firstContent.scrollHeight + "px";
+      }
+    }
+  }
+
+  // Run on load and after Astro swaps (if using ViewTransitions, though not active here necessarily)
+  document.addEventListener("DOMContentLoaded", setupFAQ);
+  document.addEventListener("astro:page-load", setupFAQ);
+</script>
