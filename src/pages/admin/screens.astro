@@ -1,0 +1,252 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Screens" active="screens">
+  <div class="flex items-center justify-between mb-5 gap-3 flex-wrap">
+    <p class="text-[14px] text-[#6B7280]">Manage screen locations shown on the public site.</p>
+    <button id="add-screen" class="bg-[#3253CC] text-white rounded-full px-5 py-2.5 font-['Poppins'] font-bold text-[13px] hover:bg-[#2438B5] transition-colors min-h-[44px]">
+      + Add screen
+    </button>
+  </div>
+
+  <div id="screens-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <p class="text-center text-[#9AA3B2] text-sm py-10 col-span-full">Loading…</p>
+  </div>
+
+  <!-- Editor modal -->
+  <div id="screen-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+    <form id="screen-form" class="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+      <h2 id="modal-title" class="font-outfit font-bold text-[20px] text-[#0A0A0A] mb-4">Add screen</h2>
+      <input type="hidden" id="screen-id" />
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="fl">Area *</label>
+          <input id="f-area" class="fi" placeholder="Koramangala" />
+        </div>
+        <div>
+          <label class="fl">City *</label>
+          <input id="f-city" class="fi" placeholder="BANGALORE" />
+        </div>
+        <div>
+          <label class="fl">Venue *</label>
+          <input id="f-venue" class="fi" placeholder="2 Rabbits Bakes" />
+        </div>
+        <div>
+          <label class="fl">Footfall</label>
+          <input id="f-footfall" class="fi" placeholder="~2,000/day" />
+        </div>
+        <div>
+          <label class="fl">Franchise *</label>
+          <select id="f-franchise" class="fi"></select>
+        </div>
+        <div>
+          <label class="fl">Order</label>
+          <input id="f-order" type="number" class="fi" placeholder="1" />
+        </div>
+      </div>
+      <div class="mt-4">
+        <label class="fl">Map link</label>
+        <input id="f-maplink" class="fi" placeholder="https://maps.app.goo.gl/…" />
+      </div>
+      <div class="mt-4">
+        <label class="fl">Photo</label>
+        <div class="flex items-center gap-3">
+          <div id="img-thumb" class="w-16 h-16 rounded-lg bg-[#F1F3FB] overflow-hidden flex items-center justify-center text-[#9AA3B2] text-xs flex-shrink-0">none</div>
+          <input id="f-image" type="file" accept="image/*" class="text-[13px]" />
+        </div>
+      </div>
+
+      <p id="modal-error" class="text-[#DC2626] text-[13px] mt-3 min-h-[1px]" aria-live="polite"></p>
+
+      <div class="flex justify-end gap-2 mt-5">
+        <button type="button" id="modal-cancel" class="px-4 py-2.5 rounded-full text-[13px] font-semibold text-[#6B7280] hover:bg-[#F3F4F6] min-h-[44px]">Cancel</button>
+        <button type="submit" id="modal-save" class="px-5 py-2.5 rounded-full text-[13px] font-bold text-white bg-[#3253CC] hover:bg-[#2438B5] min-h-[44px] flex items-center gap-2">
+          <span class="save-label">Save</span>
+          <span class="save-spinner hidden w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<style>
+  .fl { display:block; font-family:"Poppins",sans-serif; font-weight:600; font-size:13px; color:#1f2433; margin-bottom:5px; }
+  .fi { width:100%; min-height:44px; border:1px solid #d8def0; border-radius:10px; padding:0 12px; font-size:15px; color:#0a0a0a; }
+  .fi:focus { outline:none; border-color:#3253CC; box-shadow:0 0 0 3px rgba(50,83,204,.15); }
+</style>
+
+<script>
+  import { guardAdmin } from "../../lib/auth";
+  import {
+    listScreens, createScreen, updateScreen, deleteScreen, uploadScreenImage,
+    FRANCHISES, franchiseName, type Screen,
+  } from "../../lib/admin-data";
+
+  guardAdmin().then(async ({ admin }) => {
+    const listEl = document.getElementById("screens-list")!;
+    const modal = document.getElementById("screen-modal")!;
+    const form = document.getElementById("screen-form") as HTMLFormElement;
+    const errEl = document.getElementById("modal-error")!;
+    const saveBtn = document.getElementById("modal-save") as HTMLButtonElement;
+    const saveLabel = saveBtn.querySelector(".save-label") as HTMLElement;
+    const saveSpinner = saveBtn.querySelector(".save-spinner") as HTMLElement;
+    let screens: Screen[] = [];
+
+    const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+    const esc = (s: string) => (s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]!));
+
+    // Franchise options (super: all; scoped: only theirs)
+    const fr = admin.role === "super" ? FRANCHISES : FRANCHISES.filter((f) => f.id === admin.franchise);
+    ($("f-franchise") as unknown as HTMLSelectElement).innerHTML = fr
+      .map((f) => `<option value="${f.id}">${f.name}</option>`)
+      .join("");
+
+    function render() {
+      if (!screens.length) {
+        listEl.innerHTML = `
+          <div class="col-span-full text-center py-10">
+            <p class="text-[#9AA3B2] text-sm mb-4">No screens yet.</p>
+            <button id="seed-btn" class="bg-[#EEF2FF] text-[#3253CC] rounded-full px-5 py-2.5 font-['Poppins'] font-bold text-[13px] hover:bg-[#e0e7ff] min-h-[44px]">
+              Import current site locations
+            </button>
+            <p class="text-[12px] text-[#9AA3B2] mt-2">Adds the ${admin.role === "super" ? "Bangalore + Kerala" : franchiseName(admin.franchise)} locations from the live site.</p>
+          </div>`;
+        document.getElementById("seed-btn")?.addEventListener("click", async (e) => {
+          const b = e.currentTarget as HTMLButtonElement;
+          b.disabled = true;
+          b.textContent = "Importing…";
+          try {
+            const { seedStarterScreens } = await import("../../lib/seed-screens");
+            await seedStarterScreens(admin.role === "super" ? {} : { franchise: admin.franchise });
+            screens = await listScreens(admin);
+            render();
+          } catch {
+            b.disabled = false;
+            b.textContent = "Import current site locations";
+            alert("Could not import. Check your access and try again.");
+          }
+        });
+        return;
+      }
+      listEl.innerHTML = screens
+        .map(
+          (s) => `
+        <div class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+          <div class="aspect-[4/3] bg-[#0A1330] overflow-hidden">
+            ${s.imageUrl ? `<img src="${esc(s.imageUrl)}" alt="${esc(s.venue)}" class="w-full h-full object-cover" loading="lazy" />` : `<div class="w-full h-full flex items-center justify-center text-white/40 text-xs">No photo</div>`}
+          </div>
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <h3 class="font-['Poppins'] font-bold text-[15px] text-[#0A0A0A] truncate">${esc(s.area)}</h3>
+                <p class="text-[12px] text-[#9AA3B2] truncate">${esc(s.venue)} · ${esc(franchiseName(s.franchise))}</p>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wide text-[#3253CC] bg-[#EEF2FF] rounded px-2 py-0.5 flex-shrink-0">${esc(s.footfall || "")}</span>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button data-edit="${s.id}" class="text-[13px] font-semibold px-3 py-1.5 rounded-lg bg-[#EEF2FF] text-[#3253CC] hover:bg-[#e0e7ff]">Edit</button>
+              <button data-del="${s.id}" class="text-[13px] font-semibold px-3 py-1.5 rounded-lg bg-[#FEE9E9] text-[#C0362C] hover:bg-[#fbdada]">Delete</button>
+            </div>
+          </div>
+        </div>`
+        )
+        .join("");
+    }
+
+    const openModal = (s?: Screen) => {
+      errEl.textContent = "";
+      $("screen-id").value = s?.id ?? "";
+      $("f-area").value = s?.area ?? "";
+      $("f-city").value = s?.city ?? "";
+      $("f-venue").value = s?.venue ?? "";
+      $("f-footfall").value = s?.footfall ?? "";
+      $("f-maplink").value = s?.mapLink ?? "";
+      $("f-order").value = s?.order != null ? String(s.order) : "";
+      ($("f-franchise") as unknown as HTMLSelectElement).value = s?.franchise ?? fr[0].id;
+      $("f-image").value = "";
+      const thumb = document.getElementById("img-thumb")!;
+      thumb.innerHTML = s?.imageUrl ? `<img src="${esc(s.imageUrl)}" class="w-full h-full object-cover" />` : "none";
+      document.getElementById("modal-title")!.textContent = s ? "Edit screen" : "Add screen";
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+    const closeModal = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    document.getElementById("add-screen")!.addEventListener("click", () => openModal());
+    document.getElementById("modal-cancel")!.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+    listEl.addEventListener("click", async (e) => {
+      const t = e.target as HTMLElement;
+      const editId = t.closest("[data-edit]")?.getAttribute("data-edit");
+      const delId = t.closest("[data-del]")?.getAttribute("data-del");
+      if (editId) openModal(screens.find((s) => s.id === editId));
+      if (delId) {
+        if (!confirm("Delete this screen? This cannot be undone.")) return;
+        try {
+          await deleteScreen(delId);
+          screens = screens.filter((s) => s.id !== delId);
+          render();
+        } catch { alert("Could not delete. Check your access."); }
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errEl.textContent = "";
+      const data = {
+        area: $("f-area").value.trim(),
+        city: $("f-city").value.trim(),
+        venue: $("f-venue").value.trim(),
+        footfall: $("f-footfall").value.trim(),
+        mapLink: $("f-maplink").value.trim(),
+        franchise: ($("f-franchise") as unknown as HTMLSelectElement).value,
+        order: $("f-order").value ? Number($("f-order").value) : 0,
+      };
+      if (!data.area || !data.city || !data.venue) {
+        errEl.textContent = "Area, city and venue are required.";
+        return;
+      }
+      const id = $("screen-id").value;
+      const file = ($("f-image") as HTMLInputElement).files?.[0] ?? null;
+      saveBtn.disabled = true;
+      saveLabel.textContent = "Saving…";
+      saveSpinner.classList.remove("hidden");
+      try {
+        let screenId = id;
+        if (id) {
+          await updateScreen(id, data);
+        } else {
+          const refDoc = await createScreen(data as Omit<Screen, "id">);
+          screenId = refDoc.id;
+        }
+        if (file) {
+          const url = await uploadScreenImage(screenId, file);
+          await updateScreen(screenId, { imageUrl: url });
+        }
+        screens = await listScreens(admin);
+        render();
+        closeModal();
+      } catch (err) {
+        console.error(err);
+        errEl.textContent = "Could not save. Check your access and try again.";
+      } finally {
+        saveBtn.disabled = false;
+        saveLabel.textContent = "Save";
+        saveSpinner.classList.add("hidden");
+      }
+    });
+
+    try {
+      screens = await listScreens(admin);
+      render();
+    } catch {
+      listEl.innerHTML = '<p class="text-center text-[#C0362C] text-sm py-10 col-span-full">Could not load screens. Check Firestore is set up and rules are deployed.</p>';
+    }
+  });
+</script>

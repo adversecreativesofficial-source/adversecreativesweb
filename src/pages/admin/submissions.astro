@@ -1,0 +1,130 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+const filters = ["all", "pending", "approved", "rejected"];
+---
+
+<AdminLayout title="Submissions" active="submissions">
+  <div class="flex gap-2 mb-5 flex-wrap">
+    {filters.map((f) => (
+      <button
+        data-filter={f}
+        class="filter-btn capitalize px-3.5 py-1.5 rounded-full text-[13px] font-['Poppins'] font-semibold border border-[#E0E7FF] bg-white text-[#6B7280] data-[active]:bg-[#3253CC] data-[active]:text-white data-[active]:border-[#3253CC]"
+      >
+        {f}
+      </button>
+    ))}
+  </div>
+
+  <div id="subs-list" class="grid gap-4">
+    <p class="text-center text-[#9AA3B2] text-sm py-10">Loading…</p>
+  </div>
+</AdminLayout>
+
+<script>
+  import { guardAdmin } from "../../lib/auth";
+  import {
+    listSubmissions,
+    setSubmissionStatus,
+    franchiseName,
+    type Submission,
+  } from "../../lib/admin-data";
+
+  guardAdmin().then(async ({ admin }) => {
+    const listEl = document.getElementById("subs-list")!;
+    let all: Submission[] = [];
+    let filter = "all";
+
+    const esc = (s: string) =>
+      (s ?? "").replace(/[&<>"]/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!)
+      );
+    const fmtDate = (s?: { seconds: number } | null) =>
+      s ? new Date(s.seconds * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
+    const badge = (status: string) => {
+      const map: Record<string, string> = {
+        pending: "bg-[#FFF4E5] text-[#B26B00]",
+        approved: "bg-[#E6F7EE] text-[#067647]",
+        rejected: "bg-[#FEE9E9] text-[#C0362C]",
+      };
+      return `<span class="text-[11px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1 ${map[status] ?? ""}">${status}</span>`;
+    };
+    const isVideo = (t: string) => t?.startsWith("video/");
+
+    function render() {
+      const rows = all.filter((s) => filter === "all" || s.status === filter);
+      if (!rows.length) {
+        listEl.innerHTML = `<p class="text-center text-[#9AA3B2] text-sm py-10">No ${filter === "all" ? "" : filter + " "}submissions.</p>`;
+        return;
+      }
+      listEl.innerHTML = rows
+        .map(
+          (s) => `
+        <div class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-4 flex flex-col sm:flex-row gap-4">
+          <a href="${esc(s.adUrl)}" target="_blank" rel="noopener noreferrer" class="block w-full sm:w-36 h-36 sm:h-auto rounded-xl overflow-hidden bg-[#0A1330] flex-shrink-0">
+            ${
+              isVideo(s.fileType)
+                ? `<video src="${esc(s.adUrl)}" class="w-full h-full object-cover" muted></video>`
+                : `<img src="${esc(s.adUrl)}" alt="Ad for ${esc(s.businessName)}" class="w-full h-full object-cover" loading="lazy" />`
+            }
+          </a>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div class="min-w-0">
+                <h3 class="font-['Poppins'] font-bold text-[16px] text-[#0A0A0A] truncate">${esc(s.businessName) || "—"}</h3>
+                <p class="text-[12px] text-[#9AA3B2]">${esc(s.category)} · ${esc(franchiseName(s.franchise))} · ${fmtDate(s.createdAt)}</p>
+              </div>
+              ${badge(s.status)}
+            </div>
+            <div class="grid sm:grid-cols-2 gap-1 text-[13px] text-[#4B5563] mb-3">
+              <p><span class="text-[#9AA3B2]">Contact:</span> ${esc(s.contactName)}</p>
+              <p><span class="text-[#9AA3B2]">Phone:</span> <a href="tel:${esc(s.phone)}" class="text-[#3253CC]">${esc(s.phone)}</a></p>
+              <p class="truncate"><span class="text-[#9AA3B2]">Email:</span> <a href="mailto:${esc(s.email)}" class="text-[#3253CC]">${esc(s.email)}</a></p>
+              <p class="truncate"><span class="text-[#9AA3B2]">File:</span> ${esc(s.fileName)}</p>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button data-act="approved" data-id="${s.id}" class="act-btn text-[13px] font-semibold px-3 py-1.5 rounded-lg bg-[#E6F7EE] text-[#067647] hover:bg-[#d3f0e0]">Approve</button>
+              <button data-act="rejected" data-id="${s.id}" class="act-btn text-[13px] font-semibold px-3 py-1.5 rounded-lg bg-[#FEE9E9] text-[#C0362C] hover:bg-[#fbdada]">Reject</button>
+              <button data-act="pending" data-id="${s.id}" class="act-btn text-[13px] font-semibold px-3 py-1.5 rounded-lg bg-[#F3F4F6] text-[#4B5563] hover:bg-[#e7e9ee]">Mark pending</button>
+            </div>
+          </div>
+        </div>`
+        )
+        .join("");
+    }
+
+    listEl.addEventListener("click", async (e) => {
+      const btn = (e.target as HTMLElement).closest(".act-btn") as HTMLButtonElement | null;
+      if (!btn) return;
+      const id = btn.dataset.id!;
+      const status = btn.dataset.act as Submission["status"];
+      btn.disabled = true;
+      try {
+        await setSubmissionStatus(id, status);
+        const item = all.find((s) => s.id === id);
+        if (item) item.status = status;
+        render();
+      } catch {
+        btn.disabled = false;
+        alert("Could not update. Check your access and try again.");
+      }
+    });
+
+    document.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        filter = b.dataset.filter!;
+        document.querySelectorAll(".filter-btn").forEach((x) => x.removeAttribute("data-active"));
+        b.setAttribute("data-active", "");
+        render();
+      });
+    });
+    document.querySelector('.filter-btn[data-filter="all"]')?.setAttribute("data-active", "");
+
+    try {
+      all = await listSubmissions(admin);
+      render();
+    } catch {
+      listEl.innerHTML =
+        '<p class="text-center text-[#C0362C] text-sm py-10">Could not load submissions. Check Firestore is set up and rules are deployed.</p>';
+    }
+  });
+</script>

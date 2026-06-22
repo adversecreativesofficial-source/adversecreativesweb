@@ -1,0 +1,169 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Admins" active="admins" requireSuper={true}>
+  <div class="grid lg:grid-cols-3 gap-6">
+    <!-- Add admin -->
+    <div class="lg:col-span-1">
+      <form id="admin-form" class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-5">
+        <h2 class="font-['Poppins'] font-bold text-[15px] text-[#0A0A0A] mb-4">Add franchise admin</h2>
+        <div class="mb-3">
+          <label class="fl">Email *</label>
+          <input id="a-email" type="email" class="fi" placeholder="manager@adverse.com" />
+        </div>
+        <div class="mb-3">
+          <label class="fl">Temporary password *</label>
+          <input id="a-pass" type="text" class="fi" placeholder="At least 6 characters" />
+        </div>
+        <div class="mb-3">
+          <label class="fl">Role *</label>
+          <select id="a-role" class="fi">
+            <option value="franchise">Franchise admin</option>
+            <option value="super">Super admin</option>
+          </select>
+        </div>
+        <div class="mb-4" id="franchise-wrap">
+          <label class="fl">Franchise *</label>
+          <select id="a-franchise" class="fi"></select>
+        </div>
+        <p id="form-msg" class="text-[13px] mb-3 min-h-[1px]" aria-live="polite"></p>
+        <button type="submit" id="a-save" class="w-full min-h-[44px] bg-[#3253CC] text-white rounded-full font-['Poppins'] font-bold text-[13px] hover:bg-[#2438B5] flex items-center justify-center gap-2">
+          <span class="save-label">Create admin</span>
+          <span class="save-spinner hidden w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+        </button>
+        <p class="text-[12px] text-[#9AA3B2] mt-3">Share the temporary password securely; they can change it later.</p>
+      </form>
+    </div>
+
+    <!-- Admins list -->
+    <div class="lg:col-span-2">
+      <div id="admins-list" class="grid gap-3">
+        <p class="text-center text-[#9AA3B2] text-sm py-10">Loading…</p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .fl { display:block; font-family:"Poppins",sans-serif; font-weight:600; font-size:13px; color:#1f2433; margin-bottom:5px; }
+  .fi { width:100%; min-height:44px; border:1px solid #d8def0; border-radius:10px; padding:0 12px; font-size:15px; color:#0a0a0a; }
+  .fi:focus { outline:none; border-color:#3253CC; box-shadow:0 0 0 3px rgba(50,83,204,.15); }
+</style>
+
+<script>
+  import { guardAdmin } from "../../lib/auth";
+  import {
+    listAdmins, createAdminAccount, setAdminDisabled,
+    FRANCHISES, franchiseName, type AdminRecord,
+  } from "../../lib/admin-data";
+
+  guardAdmin({ requireSuper: true }).then(({ user }) => {
+    const listEl = document.getElementById("admins-list")!;
+    const form = document.getElementById("admin-form") as HTMLFormElement;
+    const msg = document.getElementById("form-msg")!;
+    const saveBtn = document.getElementById("a-save") as HTMLButtonElement;
+    const saveLabel = saveBtn.querySelector(".save-label") as HTMLElement;
+    const saveSpinner = saveBtn.querySelector(".save-spinner") as HTMLElement;
+    const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+    const sel = (id: string) => document.getElementById(id) as unknown as HTMLSelectElement;
+    const esc = (s: string) => (s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]!));
+    let admins: AdminRecord[] = [];
+
+    sel("a-franchise").innerHTML = FRANCHISES.map((f) => `<option value="${f.id}">${f.name}</option>`).join("");
+
+    const roleSel = sel("a-role");
+    const franchiseWrap = document.getElementById("franchise-wrap")!;
+    const syncFranchiseVisibility = () => {
+      franchiseWrap.style.display = roleSel.value === "super" ? "none" : "";
+    };
+    roleSel.addEventListener("change", syncFranchiseVisibility);
+    syncFranchiseVisibility();
+
+    function render() {
+      if (!admins.length) {
+        listEl.innerHTML = '<p class="text-center text-[#9AA3B2] text-sm py-10">No admins yet.</p>';
+        return;
+      }
+      listEl.innerHTML = admins
+        .map((a) => {
+          const isSelf = a.uid === user.uid;
+          return `
+        <div class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-4 flex items-center justify-between gap-3 ${a.disabled ? "opacity-60" : ""}">
+          <div class="min-w-0">
+            <p class="font-['Poppins'] font-semibold text-[14px] text-[#0A0A0A] truncate">${esc(a.email)} ${isSelf ? '<span class="text-[11px] text-[#9AA3B2]">(you)</span>' : ""}</p>
+            <p class="text-[12px] text-[#9AA3B2]">${a.role === "super" ? "Super admin" : `${esc(franchiseName(a.franchise))} admin`}${a.disabled ? " · disabled" : ""}</p>
+          </div>
+          ${
+            isSelf
+              ? ""
+              : `<button data-toggle="${a.uid}" data-disabled="${a.disabled ? "1" : "0"}" class="text-[13px] font-semibold px-3 py-1.5 rounded-lg ${a.disabled ? "bg-[#E6F7EE] text-[#067647]" : "bg-[#FEE9E9] text-[#C0362C]"}">${a.disabled ? "Enable" : "Disable"}</button>`
+          }
+        </div>`;
+        })
+        .join("");
+    }
+
+    listEl.addEventListener("click", async (e) => {
+      const btn = (e.target as HTMLElement).closest("[data-toggle]") as HTMLButtonElement | null;
+      if (!btn) return;
+      const uid = btn.dataset.toggle!;
+      const disable = btn.dataset.disabled !== "1";
+      btn.disabled = true;
+      try {
+        await setAdminDisabled(uid, disable);
+        const a = admins.find((x) => x.uid === uid);
+        if (a) a.disabled = disable;
+        render();
+      } catch {
+        btn.disabled = false;
+        alert("Could not update admin.");
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+      msg.className = "text-[13px] mb-3 min-h-[1px]";
+      const email = $("a-email").value.trim();
+      const password = $("a-pass").value;
+      const role = roleSel.value as "super" | "franchise";
+      const franchise = sel("a-franchise").value;
+      if (!email || password.length < 6) {
+        msg.textContent = "Enter an email and a password of at least 6 characters.";
+        msg.classList.add("text-[#DC2626]");
+        return;
+      }
+      saveBtn.disabled = true;
+      saveLabel.textContent = "Creating…";
+      saveSpinner.classList.remove("hidden");
+      try {
+        await createAdminAccount({ email, password, role, franchise });
+        msg.textContent = `Created ${role === "super" ? "super admin" : franchiseName(franchise) + " admin"} ${email}.`;
+        msg.classList.add("text-[#067647]");
+        form.reset();
+        syncFranchiseVisibility();
+        admins = await listAdmins();
+        render();
+      } catch (err: any) {
+        const code = err?.code ?? "";
+        msg.textContent = code.includes("email-already-in-use")
+          ? "That email already has an account."
+          : code.includes("weak-password")
+          ? "Password is too weak (min 6 characters)."
+          : "Could not create admin. Try again.";
+        msg.classList.add("text-[#DC2626]");
+      } finally {
+        saveBtn.disabled = false;
+        saveLabel.textContent = "Create admin";
+        saveSpinner.classList.add("hidden");
+      }
+    });
+
+    listAdmins()
+      .then((a) => { admins = a; render(); })
+      .catch(() => {
+        listEl.innerHTML = '<p class="text-center text-[#C0362C] text-sm py-10">Could not load admins.</p>';
+      });
+  });
+</script>

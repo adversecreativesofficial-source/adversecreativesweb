@@ -162,8 +162,12 @@ const groups = franchises.map((f) => ({
             )}
           </div>
 
-          {/* Locations grid */}
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Locations grid (static first; hydrated from Firestore if available) */}
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            data-grid={franchise.id}
+            data-status={franchise.status}
+          >
             {locations.map((loc) => {
               const img = resolveImage(loc.image);
               const ph = placeholderFor(loc.venue);
@@ -253,3 +257,5 @@ const groups = franchises.map((f) => ({
     })}
   </div>
 </section>
+
+<script src="../scripts/screens-hydrate.ts"></script>

@@ -1,0 +1,158 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  active: "dashboard" | "submissions" | "screens" | "admins";
+  requireSuper?: boolean;
+}
+const { title, active, requireSuper = false } = Astro.props;
+
+const nav = [
+  { id: "dashboard", label: "Dashboard", href: "/admin", super: false, icon: "grid" },
+  { id: "submissions", label: "Submissions", href: "/admin/submissions", super: false, icon: "inbox" },
+  { id: "screens", label: "Screens", href: "/admin/screens", super: false, icon: "monitor" },
+  { id: "admins", label: "Admins", href: "/admin/admins", super: true, icon: "users" },
+];
+
+const icons: Record<string, string> = {
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} · AdVerse Admin</title>
+  </head>
+  <body class="antialiased bg-[#F4F6FC] min-h-screen" data-require-super={requireSuper ? "1" : "0"}>
+    <!-- Loading gate -->
+    <div id="admin-loading" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0A1330]">
+      <div class="flex flex-col items-center gap-3 text-white/80">
+        <span class="w-8 h-8 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+        <span class="font-['Poppins'] text-sm">Checking access…</span>
+      </div>
+    </div>
+
+    <div id="admin-app" class="hidden md:flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="hidden md:flex md:flex-col w-64 bg-[#0A1330] text-white p-5 fixed inset-y-0 left-0">
+        <a href="/" class="font-outfit font-bold text-xl mb-8 px-2">AdVerse<span class="text-[#859EF8]"> Admin</span></a>
+        <nav class="flex flex-col gap-1">
+          {nav.map((item) => (
+            <a
+              href={item.href}
+              data-nav={item.id}
+              data-super-only={item.super ? "1" : "0"}
+              class:list={[
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg font-['Poppins'] text-sm font-medium transition-colors",
+                item.id === active
+                  ? "bg-[#3253CC] text-white"
+                  : "text-[#AEB9E1] hover:bg-white/5 hover:text-white",
+                item.super ? "hidden" : "",
+              ]}
+            >
+              <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[item.icon]} />
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <div class="mt-auto pt-5 border-t border-white/10">
+          <p id="admin-email" class="text-[13px] text-white/90 font-medium truncate"></p>
+          <p id="admin-role" class="text-[11px] text-[#8FA6FF] uppercase tracking-wide mb-3"></p>
+          <button id="admin-logout" class="w-full text-left text-[13px] text-[#FCA5A5] hover:text-[#F87171] font-['Poppins']">
+            Sign out
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="flex-1 md:ml-64 w-full">
+        <!-- Mobile top bar -->
+        <header class="md:hidden flex items-center justify-between bg-[#0A1330] text-white px-4 py-3">
+          <span class="font-outfit font-bold">AdVerse Admin</span>
+          <button id="admin-logout-mobile" class="text-[13px] text-[#FCA5A5]">Sign out</button>
+        </header>
+
+        <main class="p-5 md:p-8 max-w-6xl mx-auto">
+          <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
+            <h1 class="font-outfit font-bold text-[26px] text-[#0A0A0A]">{title}</h1>
+            <span id="admin-scope" class="text-[13px] font-['Poppins'] text-[#6B7280]"></span>
+          </div>
+          <!-- Mobile nav -->
+          <nav class="md:hidden flex gap-2 overflow-x-auto pb-4 mb-2">
+            {nav.map((item) => (
+              <a
+                href={item.href}
+                data-super-only={item.super ? "1" : "0"}
+                class:list={[
+                  "whitespace-nowrap px-3 py-1.5 rounded-full text-[13px] font-['Poppins'] font-semibold",
+                  item.id === active ? "bg-[#3253CC] text-white" : "bg-white text-[#6B7280] border border-[#E0E7FF]",
+                  item.super ? "hidden" : "",
+                ]}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <slot />
+        </main>
+      </div>
+    </div>
+
+    <script>
+      import { guardAdmin, adminSignOut } from "../lib/auth";
+
+      const requireSuper = document.body.dataset.requireSuper === "1";
+      guardAdmin({ requireSuper }).then(({ admin }) => {
+        // Populate chrome
+        const emailEl = document.getElementById("admin-email");
+        const roleEl = document.getElementById("admin-role");
+        const scopeEl = document.getElementById("admin-scope");
+        if (emailEl) emailEl.textContent = admin.email;
+        if (roleEl)
+          roleEl.textContent =
+            admin.role === "super" ? "Super admin" : `${admin.franchise ?? ""} admin`;
+        if (scopeEl)
+          scopeEl.textContent =
+            admin.role === "super"
+              ? "Viewing all franchises"
+              : `Scoped to ${admin.franchise ?? "your franchise"}`;
+
+        // Reveal super-only nav for super admins
+        if (admin.role === "super") {
+          document
+            .querySelectorAll('[data-super-only="1"]')
+            .forEach((el) => el.classList.remove("hidden"));
+        }
+
+        // Reveal app
+        document.getElementById("admin-loading")?.classList.add("hidden");
+        const appEl = document.getElementById("admin-app");
+        appEl?.classList.remove("hidden");
+        appEl?.classList.add("flex");
+
+        // Logout
+        const doLogout = async () => {
+          await adminSignOut();
+          window.location.href = "/admin/login";
+        };
+        document.getElementById("admin-logout")?.addEventListener("click", doLogout);
+        document
+          .getElementById("admin-logout-mobile")
+          ?.addEventListener("click", doLogout);
+
+        // Let the page script know the admin is ready.
+        window.dispatchEvent(new CustomEvent("admin-ready", { detail: admin }));
+      });
+    </script>
+  </body>
+</html>

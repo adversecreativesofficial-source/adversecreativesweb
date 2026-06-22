@@ -8,7 +8,7 @@ import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
   authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID,

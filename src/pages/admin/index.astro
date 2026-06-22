@@ -1,0 +1,91 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+
+const stats = [
+  { id: "screens", label: "Screens", icon: "monitor" },
+  { id: "submissions", label: "Total submissions", icon: "inbox" },
+  { id: "pending", label: "Pending review", icon: "clock" },
+  { id: "approved", label: "Approved", icon: "check" },
+];
+const icons: Record<string, string> = {
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+};
+---
+
+<AdminLayout title="Dashboard" active="dashboard">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    {stats.map((s) => (
+      <div class="bg-white rounded-2xl p-5 border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+        <div class="w-10 h-10 rounded-xl bg-[#3253CC]/10 text-[#3253CC] flex items-center justify-center mb-4">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[s.icon]} />
+        </div>
+        <p class="font-outfit font-bold text-[28px] text-[#0A0A0A] leading-none" data-stat={s.id}>—</p>
+        <p class="font-['Poppins'] text-[13px] text-[#6B7280] mt-1">{s.label}</p>
+      </div>
+    ))}
+  </div>
+
+  <div class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-[#EEF1FA]">
+      <h2 class="font-['Poppins'] font-bold text-[15px] text-[#0A0A0A]">Recent submissions</h2>
+      <a href="/admin/submissions" class="text-[13px] font-['Poppins'] font-semibold text-[#3253CC] hover:underline">View all →</a>
+    </div>
+    <div id="recent" class="divide-y divide-[#F1F3FB]">
+      <p class="px-5 py-8 text-center text-[#9AA3B2] text-sm">Loading…</p>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { guardAdmin } from "../../lib/auth";
+  import { listSubmissions, listScreens, franchiseName } from "../../lib/admin-data";
+
+  guardAdmin().then(async ({ admin }) => {
+    const [subs, screens] = await Promise.all([
+      listSubmissions(admin),
+      listScreens(admin),
+    ]);
+
+    const set = (id: string, v: string | number) => {
+      const el = document.querySelector(`[data-stat="${id}"]`);
+      if (el) el.textContent = String(v);
+    };
+    set("screens", screens.length);
+    set("submissions", subs.length);
+    set("pending", subs.filter((s) => s.status === "pending").length);
+    set("approved", subs.filter((s) => s.status === "approved").length);
+
+    const recent = document.getElementById("recent")!;
+    const rows = subs.slice(0, 6);
+    if (!rows.length) {
+      recent.innerHTML =
+        '<p class="px-5 py-8 text-center text-[#9AA3B2] text-sm">No submissions yet.</p>';
+      return;
+    }
+    const badge = (status: string) => {
+      const map: Record<string, string> = {
+        pending: "bg-[#FFF4E5] text-[#B26B00]",
+        approved: "bg-[#E6F7EE] text-[#067647]",
+        rejected: "bg-[#FEE9E9] text-[#C0362C]",
+      };
+      return `<span class="text-[11px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1 ${map[status] ?? ""}">${status}</span>`;
+    };
+    const esc = (s: string) =>
+      s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
+    recent.innerHTML = rows
+      .map(
+        (s) => `
+        <div class="flex items-center justify-between gap-3 px-5 py-3.5">
+          <div class="min-w-0">
+            <p class="font-['Poppins'] font-semibold text-[14px] text-[#0A0A0A] truncate">${esc(s.businessName || "—")}</p>
+            <p class="text-[12px] text-[#9AA3B2] truncate">${esc(s.contactName || "")} · ${esc(franchiseName(s.franchise))}</p>
+          </div>
+          ${badge(s.status)}
+        </div>`
+      )
+      .join("");
+  });
+</script>

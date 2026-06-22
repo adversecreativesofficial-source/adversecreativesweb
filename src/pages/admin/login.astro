@@ -1,0 +1,115 @@
+---
+import "../../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sign in · AdVerse Admin</title>
+  </head>
+  <body class="antialiased min-h-screen flex items-center justify-center bg-[#0A1330] px-4">
+    <div
+      class="absolute inset-0 pointer-events-none opacity-70"
+      style="background: radial-gradient(60% 80% at 50% 0%, rgba(50,83,204,0.4), transparent 65%);"
+    >
+    </div>
+
+    <div class="relative z-10 w-full max-w-sm">
+      <div class="text-center mb-6">
+        <a href="/" class="font-outfit font-bold text-2xl text-white">AdVerse<span class="text-[#859EF8]"> Admin</span></a>
+        <p class="text-[#AEB9E1] text-sm mt-2">Sign in to manage your franchise.</p>
+      </div>
+
+      <form id="login-form" class="bg-white rounded-[18px] shadow-2xl p-7" novalidate>
+        <div class="mb-4">
+          <label for="email" class="block font-['Poppins'] font-semibold text-sm text-[#1f2433] mb-1.5">Email</label>
+          <input id="email" type="email" autocomplete="email" required
+            class="w-full min-h-[48px] border border-[#d8def0] rounded-xl px-3.5 text-[16px] text-[#0a0a0a] focus:outline-none focus:border-[#3253CC] focus:ring-2 focus:ring-[#3253CC]/15" />
+        </div>
+        <div class="mb-5">
+          <label for="password" class="block font-['Poppins'] font-semibold text-sm text-[#1f2433] mb-1.5">Password</label>
+          <input id="password" type="password" autocomplete="current-password" required
+            class="w-full min-h-[48px] border border-[#d8def0] rounded-xl px-3.5 text-[16px] text-[#0a0a0a] focus:outline-none focus:border-[#3253CC] focus:ring-2 focus:ring-[#3253CC]/15" />
+        </div>
+
+        <p id="login-error" class="text-[#DC2626] text-[13px] font-['Poppins'] mb-3 min-h-[1px]" aria-live="polite"></p>
+
+        <button id="login-btn" type="submit"
+          class="w-full min-h-[48px] bg-[#3253CC] text-white rounded-full font-['Poppins'] font-bold text-sm hover:bg-[#2438B5] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+          <span class="login-label">Sign in</span>
+          <span class="login-spinner hidden w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+        </button>
+      </form>
+
+      <p class="text-center text-[#8492C4] text-xs mt-5">
+        <a href="/" class="hover:text-white underline">← Back to site</a>
+      </p>
+    </div>
+
+    <script>
+      import { adminSignIn, getAdminProfile, adminSignOut } from "../../lib/auth";
+      import { onAuthStateChanged } from "firebase/auth";
+      import { auth } from "../../lib/firebase";
+
+      const form = document.getElementById("login-form") as HTMLFormElement;
+      const errEl = document.getElementById("login-error")!;
+      const btn = document.getElementById("login-btn") as HTMLButtonElement;
+      const label = btn.querySelector(".login-label") as HTMLElement;
+      const spinner = btn.querySelector(".login-spinner") as HTMLElement;
+
+      // If already signed in as an admin, skip straight to the dashboard.
+      const unsub = onAuthStateChanged(auth, async (user) => {
+        unsub();
+        if (user && (await getAdminProfile(user.uid))) {
+          window.location.href = "/admin";
+        }
+      });
+
+      if (new URLSearchParams(location.search).get("denied")) {
+        errEl.textContent = "That account doesn't have admin access.";
+      }
+
+      const setLoading = (on: boolean) => {
+        btn.disabled = on;
+        label.textContent = on ? "Signing in…" : "Sign in";
+        spinner.classList.toggle("hidden", !on);
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errEl.textContent = "";
+        const email = (document.getElementById("email") as HTMLInputElement).value.trim();
+        const password = (document.getElementById("password") as HTMLInputElement).value;
+        if (!email || !password) {
+          errEl.textContent = "Enter your email and password.";
+          return;
+        }
+        setLoading(true);
+        try {
+          const cred = await adminSignIn(email, password);
+          const admin = await getAdminProfile(cred.user.uid);
+          if (!admin) {
+            await adminSignOut();
+            errEl.textContent = "That account doesn't have admin access.";
+            setLoading(false);
+            return;
+          }
+          window.location.href = "/admin";
+        } catch (err: any) {
+          const code = err?.code ?? "";
+          errEl.textContent =
+            code.includes("invalid-credential") ||
+            code.includes("wrong-password") ||
+            code.includes("user-not-found")
+              ? "Incorrect email or password."
+              : "Sign in failed. Please try again.";
+          setLoading(false);
+        }
+      });
+    </script>
+  </body>
+</html>

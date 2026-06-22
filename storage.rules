@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// NOTE: Storage rules cannot read Firestore, so franchise/role scoping is
+// enforced on the Firestore `screens`/`submissions` docs (see firestore.rules).
+// Here we only constrain by sign-in state, file size, and content type.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Ad creatives uploaded by the public "Upload your ad" flow.
+    // Public read is required so the uploader can resolve a download URL; paths
+    // use unguessable Firestore IDs (ads/{submissionId}/...).
+    match /ads/{submissionId}/{fileName} {
+      allow read: if true;
+      allow create: if request.resource.size < 50 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|video/.*');
+      allow update, delete: if request.auth != null;
+    }
+
+    // Screen location photos, uploaded by admins, shown publicly on the site.
+    match /screens/{screenId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
