@@ -1,0 +1,440 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import { getEntry } from "astro:content";
+
+const indexEntry = await getEntry("pages", "index");
+const navbar = indexEntry?.data.navbar;
+const footer = indexEntry?.data.footer;
+
+const steps = [
+  { n: 1, label: "Your Ad" },
+  { n: 2, label: "Business" },
+  { n: 3, label: "Contact" },
+  { n: 4, label: "Review" },
+];
+
+const categories = [
+  "Gym & Fitness",
+  "Clinic & Hospital",
+  "Education Institute",
+  "Real Estate",
+  "Restaurant / Café",
+  "Salon & Spa",
+  "Retail Store",
+  "App / Startup",
+  "Other",
+];
+---
+
+<Layout>
+  {navbar && <Navbar {...navbar} contactButton={{ text: "Back to Home", link: "/" }} />}
+
+  <main class="relative min-h-screen bg-[#0A1330] overflow-hidden pt-28 pb-24">
+    <!-- Ambient backdrop -->
+    <div
+      class="absolute inset-0 pointer-events-none opacity-70"
+      style="background: radial-gradient(70% 90% at 50% -10%, rgba(50,83,204,0.45), transparent 60%);"
+    >
+    </div>
+
+    <div class="relative z-10 max-w-3xl mx-auto px-4 md:px-6">
+      <!-- Header -->
+      <div class="text-center mb-10" data-reveal>
+        <span
+          class="inline-block font-['Poppins'] font-bold text-[12px] tracking-[0.18em] uppercase text-[#8FA6FF] mb-3"
+          >Get started in 4 steps</span
+        >
+        <h1 class="font-outfit font-bold text-white text-[34px] md:text-[46px] leading-[1.1]">
+          Upload your first ad
+        </h1>
+        <p class="text-[#AEB9E1] text-[16px] md:text-[18px] mt-3 max-w-xl mx-auto">
+          Send us your creative and a few details — we'll get your brand on screen.
+        </p>
+      </div>
+
+      <!-- Progress -->
+      <ol class="flex items-center justify-between mb-8 max-w-xl mx-auto" aria-label="Progress">
+        {
+          steps.map((s) => (
+            <li class="flex-1 flex items-center last:flex-none" data-progress-step={s.n}>
+              <div class="flex flex-col items-center gap-2">
+                <span
+                  class="step-dot w-9 h-9 rounded-full flex items-center justify-center font-bold text-[14px] border-2 transition-colors"
+                  data-dot
+                >
+                  {s.n}
+                </span>
+                <span class="text-[11px] font-['Poppins'] font-semibold tracking-wide text-[#AEB9E1] hidden sm:block">
+                  {s.label}
+                </span>
+              </div>
+              {s.n < 4 && <span class="step-bar flex-1 h-[2px] mx-2 bg-white/15 rounded-full" data-bar />}
+            </li>
+          ))
+        }
+      </ol>
+
+      <!-- Card -->
+      <form
+        id="ad-wizard"
+        class="bg-white rounded-[20px] shadow-[0px_24px_60px_rgba(0,0,0,0.35)] p-6 md:p-9"
+        novalidate
+        enctype="multipart/form-data"
+      >
+        <!-- STEP 1 — Ad file -->
+        <section data-step="1">
+          <h2 class="font-outfit font-bold text-[22px] text-[#0A0A0A] mb-1">Upload your ad</h2>
+          <p class="text-[#6B7280] text-[14px] mb-5">
+            Upload your ad using from our website — image or video, up to 50&nbsp;MB.
+          </p>
+
+          <label
+            id="dropzone"
+            for="ad-file"
+            class="group flex flex-col items-center justify-center text-center gap-3 border-2 border-dashed border-[#C7D0F0] rounded-[16px] bg-[#F6F7FF] px-6 py-12 cursor-pointer transition-colors hover:border-[#3253CC] hover:bg-[#EEF2FF] focus-within:border-[#3253CC]"
+          >
+            <span class="w-14 h-14 rounded-full bg-[#3253CC]/10 text-[#3253CC] flex items-center justify-center">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </span>
+            <span class="font-['Poppins'] font-semibold text-[#0A0A0A] text-[15px]">
+              Drag &amp; drop your file here, or <span class="text-[#3253CC]">browse</span>
+            </span>
+            <span class="text-[#9AA3B2] text-[12px]">JPG, PNG, GIF, MP4, MOV — max 50&nbsp;MB</span>
+            <input id="ad-file" name="ad-file" type="file" accept="image/*,video/*" class="sr-only" />
+          </label>
+
+          <!-- Preview -->
+          <div id="file-preview" class="mt-4 hidden">
+            <div class="flex items-center gap-3 bg-[#F6F7FF] border border-[#E0E7FF] rounded-[12px] p-3">
+              <div id="preview-thumb" class="w-14 h-14 rounded-[10px] bg-[#0A1330] overflow-hidden flex items-center justify-center flex-shrink-0"></div>
+              <div class="min-w-0 flex-1">
+                <p id="preview-name" class="font-['Poppins'] font-semibold text-[14px] text-[#0A0A0A] truncate"></p>
+                <p id="preview-size" class="text-[12px] text-[#9AA3B2]"></p>
+              </div>
+              <button type="button" id="remove-file" class="text-[#9AA3B2] hover:text-[#DC2626] p-2 min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Remove file">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+          <p data-error="file" class="error-text" aria-live="polite"></p>
+        </section>
+
+        <!-- STEP 2 — Business -->
+        <section data-step="2" hidden>
+          <h2 class="font-outfit font-bold text-[22px] text-[#0A0A0A] mb-1">About your business</h2>
+          <p class="text-[#6B7280] text-[14px] mb-5">So we can tailor the right screens for you.</p>
+
+          <div class="mb-4">
+            <label for="businessName" class="field-label">Business name <span class="text-[#DC2626]">*</span></label>
+            <input id="businessName" name="businessName" type="text" autocomplete="organization" class="field-input" placeholder="e.g. Tera Bites" />
+            <p data-error="businessName" class="error-text" aria-live="polite"></p>
+          </div>
+
+          <div>
+            <label for="category" class="field-label">Category <span class="text-[#DC2626]">*</span></label>
+            <select id="category" name="category" class="field-input">
+              <option value="">Select a category…</option>
+              {categories.map((c) => <option value={c}>{c}</option>)}
+            </select>
+            <p data-error="category" class="error-text" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <!-- STEP 3 — Contact -->
+        <section data-step="3" hidden>
+          <h2 class="font-outfit font-bold text-[22px] text-[#0A0A0A] mb-1">How can we reach you?</h2>
+          <p class="text-[#6B7280] text-[14px] mb-5">We'll confirm your booking on these details.</p>
+
+          <div class="mb-4">
+            <label for="contactName" class="field-label">Your name <span class="text-[#DC2626]">*</span></label>
+            <input id="contactName" name="contactName" type="text" autocomplete="name" class="field-input" placeholder="Full name" />
+            <p data-error="contactName" class="error-text" aria-live="polite"></p>
+          </div>
+
+          <div class="mb-4">
+            <label for="phone" class="field-label">Phone number <span class="text-[#DC2626]">*</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" class="field-input" placeholder="+91 98765 43210" />
+            <p data-error="phone" class="error-text" aria-live="polite"></p>
+          </div>
+
+          <div>
+            <label for="email" class="field-label">Email <span class="text-[#DC2626]">*</span></label>
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email" class="field-input" placeholder="you@business.com" />
+            <p data-error="email" class="error-text" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <!-- STEP 4 — Franchise + review -->
+        <section data-step="4" hidden>
+          <h2 class="font-outfit font-bold text-[22px] text-[#0A0A0A] mb-1">Where do you want to advertise?</h2>
+          <p class="text-[#6B7280] text-[14px] mb-5">Pick a city, then review and submit.</p>
+
+          <fieldset class="mb-6">
+            <legend class="field-label mb-2">Franchise <span class="text-[#DC2626]">*</span></legend>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label class="franchise-option">
+                <input type="radio" name="franchise" value="bangalore" class="peer sr-only" />
+                <span class="franchise-card">
+                  <span class="font-['Poppins'] font-bold text-[15px] text-[#0A0A0A]">Bangalore</span>
+                  <span class="badge-live">Live now</span>
+                </span>
+              </label>
+              <label class="franchise-option">
+                <input type="radio" name="franchise" value="kerala" class="peer sr-only" />
+                <span class="franchise-card">
+                  <span class="font-['Poppins'] font-bold text-[15px] text-[#0A0A0A]">Kerala</span>
+                  <span class="badge-soon">Waitlist</span>
+                </span>
+              </label>
+            </div>
+            <p data-error="franchise" class="error-text" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="bg-[#F6F7FF] border border-[#E0E7FF] rounded-[14px] p-5">
+            <h3 class="font-['Poppins'] font-bold text-[13px] tracking-wide uppercase text-[#6B7280] mb-3">Review</h3>
+            <dl id="review" class="space-y-2 text-[14px]"></dl>
+          </div>
+
+          <p data-error="submit" class="error-text" aria-live="polite"></p>
+        </section>
+
+        <!-- SUCCESS -->
+        <section data-step="success" hidden class="text-center py-6">
+          <div class="w-16 h-16 rounded-full bg-[#E6F7EE] text-[#067647] flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 class="font-outfit font-bold text-[24px] text-[#0A0A0A] mb-2">Ad submitted!</h2>
+          <p class="text-[#6B7280] text-[15px] max-w-md mx-auto mb-6">
+            Thanks — our team will review your creative and reach out shortly to confirm your screens.
+          </p>
+          <a href="/" class="inline-flex items-center justify-center bg-[#3253CC] text-white rounded-full px-7 py-3 font-['Poppins'] font-bold text-[14px] hover:bg-[#2438B5] transition-colors min-h-[44px]">
+            Back to home
+          </a>
+        </section>
+
+        <!-- Nav buttons -->
+        <div id="wizard-nav" class="flex items-center justify-between gap-3 mt-8">
+          <button type="button" id="btn-back" class="btn-ghost" hidden>
+            ← Back
+          </button>
+          <span class="flex-1"></span>
+          <button type="button" id="btn-next" class="btn-primary">Continue</button>
+          <button type="submit" id="btn-submit" class="btn-primary" hidden>
+            <span class="btn-label">Submit ad</span>
+            <span class="btn-spinner hidden" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+
+      <p class="text-center text-[#8492C4] text-[12px] mt-5">
+        Prefer to talk first? <a href="/contact" class="text-[#AEB9E1] underline hover:text-white">Contact us</a>.
+      </p>
+    </div>
+  </main>
+
+  {footer && <Footer {...footer} />}
+</Layout>
+
+<style>
+  .field-label {
+    display: block;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1f2433;
+    margin-bottom: 6px;
+  }
+  .field-input {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #d8def0;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 16px; /* avoids iOS auto-zoom */
+    color: #0a0a0a;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  select.field-input {
+    padding: 0 12px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .field-input:focus {
+    outline: none;
+    border-color: #3253cc;
+    box-shadow: 0 0 0 3px rgba(50, 83, 204, 0.15);
+  }
+  .field-input.invalid {
+    border-color: #dc2626;
+  }
+  .error-text {
+    color: #dc2626;
+    font-size: 13px;
+    font-family: "Poppins", sans-serif;
+    margin-top: 6px;
+    min-height: 1px;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #3253cc;
+    color: #fff;
+    border-radius: 9999px;
+    padding: 12px 28px;
+    min-height: 48px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+  }
+  .btn-primary:hover {
+    background: #2438b5;
+  }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #6b7280;
+    border-radius: 9999px;
+    padding: 12px 20px;
+    min-height: 48px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover {
+    color: #0a0a0a;
+    background: #f3f4f6;
+  }
+  .btn-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* Progress dots */
+  .step-dot {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #aeb9e1;
+    background: transparent;
+  }
+  [data-progress-step].is-active .step-dot {
+    border-color: #859ef8;
+    color: #fff;
+    background: #3253cc;
+  }
+  [data-progress-step].is-done .step-dot {
+    border-color: #3253cc;
+    color: #fff;
+    background: #3253cc;
+  }
+  [data-progress-step].is-done .step-bar,
+  [data-progress-step].is-active .step-bar {
+    background: #3253cc;
+  }
+  /* Franchise option */
+  .franchise-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border: 2px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 56px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .franchise-option:hover .franchise-card {
+    border-color: #c7d0f0;
+  }
+  .peer:checked ~ .franchise-card {
+    border-color: #3253cc;
+    background: #f6f7ff;
+  }
+  .peer:focus-visible ~ .franchise-card {
+    box-shadow: 0 0 0 3px rgba(50, 83, 204, 0.2);
+  }
+  .badge-live {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #067647;
+    background: #e6f7ee;
+    border-radius: 9999px;
+    padding: 3px 10px;
+  }
+  .badge-soon {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #b26b00;
+    background: #fff4e5;
+    border-radius: 9999px;
+    padding: 3px 10px;
+  }
+  .review-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .review-row dt {
+    color: #6b7280;
+  }
+  .review-row dd {
+    color: #0a0a0a;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+  }
+  /* Step transition */
+  section[data-step] {
+    animation: step-in 0.35s ease both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    section[data-step] {
+      animation: none;
+    }
+  }
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<script src="../scripts/upload-wizard.ts"></script>

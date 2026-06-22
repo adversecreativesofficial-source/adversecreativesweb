@@ -11,8 +11,8 @@ hero:
   highlight: "Your Brand Wins."
   description: "Digital advertising screens placed in high-footfall spaces where people can’t skip, scroll, or block your brand."
   buttons:
-    - text: "Book a Screen"
-      link: "https://wa.me/+919110870573?text=Hello%20I%20would%20love%20to%20know%20more%20about%20Adverse"
+    - text: "Upload Your First Ad"
+      link: "/upload"
       variant: "primary"
     - text: "View Locations"
       link: "/contact"
@@ -138,7 +138,7 @@ footer:
   companyDesc: "Turning everyday spaces into impactful brand experiences that capture attention and drive engagement."
   contact:
     phone: "+919110870573"
-    email: "support@adverse-media.com"
+    email: "info@adversecreatives.com"
   socials:
     linkedin: "https://www.linkedin.com/company/adverse-creatives-official/"
     instagram: "https://www.instagram.com/adverse_creatives/"
