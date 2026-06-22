@@ -27,7 +27,7 @@ const { hero, contactSection, mapSection } = contactEntry.data;
 
   <main class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
-    {hero && <Hero {...hero} backgroundImage={contactBg} />}
+    {hero && <Hero {...hero} backgroundImage={contactBg} compact={true} />}
 
     <!-- Content Section -->
     {

@@ -6,9 +6,10 @@ import mobile_view_hero_vector from "../assets/mobile_view_hero_vector.svg";
 
 type Props = NonNullable<CollectionEntry<"pages">["data"]["hero"]> & {
   backgroundImage?: ImageMetadata;
+  compact?: boolean;
 };
 
-const { title, highlight, description, buttons, backgroundImage } =
+const { title, highlight, description, buttons, backgroundImage, compact } =
   Astro.props as Props;
 
 const bgImage = backgroundImage || heroSvg;
@@ -17,7 +18,10 @@ const mobileBgImage = mobile_view_hero_vector;
 
 <section
   id="hero-section"
-  class="relative min-h-screen flex items-center justify-center overflow-hidden bg-black transition-colors duration-300"
+  class:list={[
+    "relative flex items-center justify-center overflow-hidden bg-black transition-colors duration-300",
+    compact ? "min-h-[58vh] py-28" : "min-h-screen",
+  ]}
 >
   <!-- Background Image -->
   <div

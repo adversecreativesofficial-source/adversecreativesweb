@@ -8,6 +8,8 @@ type Props = NonNullable<CollectionEntry<"pages">["data"]["footer"]>;
 
 const { companyName, companyDesc, contact, socials, mapEmbedUrl } =
   Astro.props as Props;
+
+const currentYear = new Date().getFullYear();
 ---
 
 <footer id="footer-section" class="transition-colors duration-300">
@@ -145,7 +147,7 @@ const { companyName, companyDesc, contact, socials, mapEmbedUrl } =
         class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left"
       >
         <div class="text-gray-400 text-xs">
-          &copy; 2025 AdVerse Media. All rights reserved.
+          &copy; {currentYear} AdVerse Media. All rights reserved.
         </div>
         <a
           href="#"
