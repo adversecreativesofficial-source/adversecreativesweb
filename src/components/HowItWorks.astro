@@ -56,7 +56,7 @@ const stepIcons=[arrow, people, reload, share];
                   <!-- Icon -->
                   <div class="relative z-10 shrink-0">
                     <div class="w-16 h-16 rounded-full bg-[#EBEFFF] flex items-center justify-center text-white shrink-0 z-10 relative">
-                       <Image src={stepIcons[index]} alt="Step Icon" class="w-8 h-8" />
+                       <Image src={stepIcons[index % stepIcons.length]} alt="Step Icon" class="w-8 h-8" />
                     </div>
                   </div>
                   

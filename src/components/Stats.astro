@@ -45,7 +45,7 @@ const icons = [icon1, icon2, icon3, icon4];
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {
           items.map((stat, index) => (
-            <div class="stat-card bg-white border border-white/10 p-8 rounded-2xl">
+            <div class="stat-card bg-white border border-white/10 p-8 rounded-2xl" data-reveal-card>
               <div class="w-12 h-12 bg-[#3253CC]/10 rounded-xl flex items-center justify-center mb-6 text-[#3253CC] group-hover:scale-110 transition-transform">
                 {/* Icons */}
                 <Image
@@ -67,25 +67,6 @@ const icons = [icon1, icon2, icon3, icon4];
     </div>
   </div>
 </section>
-
-<script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  gsap.to(".stat-card", {
-    scrollTrigger: {
-      trigger: ".stat-card",
-      start: "top 80%",
-    },
-    y: 0,
-    opacity: 1,
-    duration: 0.8,
-    stagger: 0.2,
-    ease: "power2.out",
-  });
-</script>
 
 <style>
   :global([data-theme="light"]) #stats-section h2 {
