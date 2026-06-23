@@ -25,7 +25,7 @@ const { hero, contactSection, mapSection } = contactEntry.data;
     )
   }
 
-  <main class="min-h-screen bg-gray-50">
+  <main class="min-h-screen bg-[#080b14]">
     <!-- Hero Section -->
     {hero && <Hero {...hero} backgroundImage={contactBg} compact={true} />}
 
@@ -36,13 +36,13 @@ const { hero, contactSection, mapSection } = contactEntry.data;
           <div class="grid lg:grid-cols-2 gap-8 lg:gap-24 items-start">
             {/* Left Column: Title & Description */}
             <div>
-              <h2 class="font-['Poppins'] font-black text-[36px] leading-[46px] text-[#232323] mb-2 leading-tight">
+              <h2 class="font-['Poppins'] font-black text-[36px] leading-[46px] text-white mb-2 leading-tight">
                 {contactSection.title}
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4068FC] to-[#00229D]">
                   {contactSection.highlight}
                 </span>
               </h2>
-              <p class="font-['Poppins'] font-normal text-[20px] leading-[30px] text-[#565656] mb-8 max-w-[611px]">
+              <p class="font-['Poppins'] font-normal text-[20px] leading-[30px] text-[#9aa6c6] mb-8 max-w-[611px]">
                 {contactSection.description}
               </p>
             </div>
@@ -51,7 +51,7 @@ const { hero, contactSection, mapSection } = contactEntry.data;
             <div class="space-y-4">
               {/* Phone Cards */}
               {contactSection.phones?.map((phone: any) => (
-                <div class="bg-white rounded-[12px] flex flex-row items-center p-[18px] gap-[24px] w-full md:w-[420px] h-auto md:h-[102px] shadow-[0px_0px_10.8px_#E1E8FF] border border-[#E0E7FF] box-border">
+                <div class="bg-white/[0.04] rounded-[12px] flex flex-row items-center p-[18px] gap-[24px] w-full md:w-[420px] h-auto md:h-[102px] border border-white/10 box-border">
                   <div class="w-[51px] h-[51px] bg-[#4264DF]/10 rounded-[12px] flex flex-none items-center justify-center order-0 flex-grow-0 p-[12px] gap-[10px]">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@ const { hero, contactSection, mapSection } = contactEntry.data;
                     </p>
                     <a
                       href={`tel:${phone.number.replace(/\s+/g, "")}`}
-                      class="font-['Poppins'] font-medium text-[20px] leading-[30px] tracking-[-0.02em] text-[#000000] flex items-center h-[30px] hover:text-[#4068FC] transition-colors"
+                      class="font-['Poppins'] font-medium text-[20px] leading-[30px] tracking-[-0.02em] text-white flex items-center h-[30px] hover:text-[#4068FC] transition-colors"
                     >
                       {phone.number}
                     </a>
@@ -78,7 +78,7 @@ const { hero, contactSection, mapSection } = contactEntry.data;
 
               {/* Email Cards */}
               {contactSection.emails?.map((email: any) => (
-                <div class="bg-white rounded-[12px] flex flex-row items-center p-[18px] gap-[24px] w-full md:w-[420px] h-auto md:h-[102px] shadow-[0px_0px_10.8px_#E1E8FF] border border-[#E0E7FF] box-border">
+                <div class="bg-white/[0.04] rounded-[12px] flex flex-row items-center p-[18px] gap-[24px] w-full md:w-[420px] h-auto md:h-[102px] border border-white/10 box-border">
                   <div class="w-[51px] h-[51px] bg-[#4264DF]/10 rounded-[12px] flex flex-none items-center justify-center order-0 flex-grow-0 p-[12px] gap-[10px]">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +96,7 @@ const { hero, contactSection, mapSection } = contactEntry.data;
                     </p>
                     <a
                       href={`mailto:${email.address}`}
-                      class="font-['Poppins'] font-medium text-[20px] leading-[30px] tracking-[-0.02em] text-[#000000] flex items-center h-[30px] break-all hover:text-[#4068FC] transition-colors"
+                      class="font-['Poppins'] font-medium text-[20px] leading-[30px] tracking-[-0.02em] text-white flex items-center h-[30px] break-all hover:text-[#4068FC] transition-colors"
                     >
                       {email.address}
                     </a>

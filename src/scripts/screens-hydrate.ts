@@ -68,18 +68,18 @@ function cardHtml(s: ScreenDoc, comingSoon: boolean): string {
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4.5 h-4.5"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
         </div>
         <div>
-          <h4 class="font-['Poppins'] font-bold text-[17px] leading-[22px] text-[#0A0A0A] mb-0.5 transition-colors ${comingSoon ? "" : "group-hover:text-[#3253CC]"}">${esc(s.area)}</h4>
-          <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#3253CC] uppercase">${esc(s.city)}</span>
+          <h4 class="font-['Poppins'] font-bold text-[17px] leading-[22px] text-white mb-0.5 transition-colors ${comingSoon ? "" : "group-hover:text-[#859EF8]"}">${esc(s.area)}</h4>
+          <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#859EF8] uppercase">${esc(s.city)}</span>
         </div>
       </div>
-      <div class="bg-[#F6F7FF] rounded-[8px] p-3 flex justify-between items-center gap-2">
-        <span class="font-['Poppins'] font-medium text-[14px] leading-[20px] text-[#171717] truncate">${esc(s.venue)}</span>
-        <span class="bg-[#E0E7FF] rounded-[6px] px-2.5 py-1 font-['Poppins'] font-bold text-[10px] leading-[15px] text-[#3253CC] whitespace-nowrap flex-shrink-0">${esc(s.footfall)}</span>
+      <div class="bg-white/[0.04] border border-white/5 rounded-[8px] p-3 flex justify-between items-center gap-2">
+        <span class="font-['Poppins'] font-medium text-[14px] leading-[20px] text-[#d4dbf0] truncate">${esc(s.venue)}</span>
+        <span class="bg-[#3253CC]/20 rounded-[6px] px-2.5 py-1 font-['Poppins'] font-bold text-[10px] leading-[15px] text-[#859EF8] whitespace-nowrap flex-shrink-0">${esc(s.footfall)}</span>
       </div>
     </div>`;
   const inner = `<div class="relative aspect-[4/3] overflow-hidden">${media}${overlay}</div>${body}`;
-  const cls = `group relative block bg-white rounded-[16px] overflow-hidden border border-transparent text-left shadow-[0px_4px_24px_rgba(0,0,0,0.04)] transition-all duration-300 ${
-    comingSoon ? "opacity-90" : "hover:shadow-[0px_12px_40px_rgba(50,83,204,0.14)] hover:border-[#E0E7FF] hover:-translate-y-1"
+  const cls = `group relative block bg-white/[0.04] rounded-[16px] overflow-hidden border border-white/10 text-left transition-all duration-300 ${
+    comingSoon ? "opacity-90" : "hover:shadow-[0px_12px_40px_rgba(50,83,204,0.25)] hover:border-[#3253CC]/40 hover:-translate-y-1"
   }`;
   return comingSoon
     ? `<div class="${cls}">${inner}</div>`

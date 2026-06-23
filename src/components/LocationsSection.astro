@@ -80,26 +80,26 @@ const groups = franchises.map((f) => ({
 }));
 ---
 
-<section class="py-20 bg-[#F6F7FF]" data-reveal-section>
+<section class="py-20 bg-[#080b14]" data-reveal-section>
   <div class="max-w-7xl mx-auto px-4 md:px-12 text-center md:text-left">
     {mapSection.label && (
       <span
-        class="font-['Poppins'] font-bold text-[12px] leading-[18px] tracking-[0.08em] uppercase text-[#737373] mb-4 block"
+        class="font-['Poppins'] font-bold text-[12px] leading-[18px] tracking-[0.08em] uppercase text-[#859EF8] mb-4 block"
         data-reveal
       >
         {mapSection.label}
       </span>
     )}
     <h2
-      class="font-['Poppins'] font-bold text-[40px] md:text-[52px] leading-[1.1] text-[#0A0A0A] mb-4 tracking-[-0.02em]"
+      class="font-['Poppins'] font-bold text-[40px] md:text-[52px] leading-[1.1] text-white mb-4 tracking-[-0.02em]"
       data-reveal
     >
       {mapSection.title}
       <br class="hidden md:block" />
-      <span class="text-[#3253CC]">{mapSection.highlight}</span>
+      <span class="text-[#859EF8]">{mapSection.highlight}</span>
     </h2>
     <p
-      class="font-['Poppins'] font-normal text-[18px] leading-[28px] text-[#525252] max-w-2xl mb-12"
+      class="font-['Poppins'] font-normal text-[18px] leading-[28px] text-[#9aa6c6] max-w-2xl mb-12"
       data-reveal
     >
       {mapSection.description}
@@ -107,12 +107,12 @@ const groups = franchises.map((f) => ({
 
     {mapSection.stats && (
       <div
-        class="bg-white rounded-[16px] p-8 shadow-[0px_4px_24px_rgba(0,0,0,0.02)] mb-12 flex flex-col md:flex-row justify-between items-center divide-y md:divide-y-0 md:divide-x divide-gray-100"
+        class="bg-white/[0.04] border border-white/10 rounded-[16px] p-8 mb-12 flex flex-col md:flex-row justify-between items-center divide-y md:divide-y-0 md:divide-x divide-white/10"
         data-reveal
       >
         {mapSection.stats.map((stat) => (
           <div class="flex-1 flex flex-col items-center justify-center p-4">
-            <span class="font-['Poppins'] font-bold text-[32px] leading-[1] text-[#0A0A0A] mb-2">
+            <span class="font-['Poppins'] font-bold text-[32px] leading-[1] text-white mb-2">
               {stat.value}
             </span>
             <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#A3A3A3] uppercase">
@@ -131,7 +131,7 @@ const groups = franchises.map((f) => ({
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8" data-reveal>
             <div class="text-center md:text-left">
               <div class="flex items-center justify-center md:justify-start gap-3">
-                <h3 class="font-['Poppins'] font-bold text-[28px] md:text-[32px] leading-[1.1] text-[#0A0A0A]">
+                <h3 class="font-['Poppins'] font-bold text-[28px] md:text-[32px] leading-[1.1] text-white">
                   {franchise.name}
                 </h3>
                 {isComingSoon ? (
@@ -147,7 +147,7 @@ const groups = franchises.map((f) => ({
                 )}
               </div>
               {franchise.tagline && (
-                <p class="font-['Poppins'] text-[15px] text-[#737373] mt-1">
+                <p class="font-['Poppins'] text-[15px] text-[#9aa6c6] mt-1">
                   {franchise.tagline}
                 </p>
               )}
@@ -177,10 +177,10 @@ const groups = franchises.map((f) => ({
                   {...(!isComingSoon ? { href: loc.link, target: "_blank", rel: "noopener noreferrer" } : {})}
                   data-reveal-card
                   class:list={[
-                    "group relative block bg-white rounded-[16px] overflow-hidden border border-transparent text-left shadow-[0px_4px_24px_rgba(0,0,0,0.04)] transition-all duration-300",
+                    "group relative block bg-white/[0.04] rounded-[16px] overflow-hidden border border-white/10 text-left transition-all duration-300",
                     isComingSoon
                       ? "opacity-90"
-                      : "hover:shadow-[0px_12px_40px_rgba(50,83,204,0.14)] hover:border-[#E0E7FF] hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC] focus-visible:ring-offset-2",
+                      : "hover:shadow-[0px_12px_40px_rgba(50,83,204,0.25)] hover:border-[#3253CC]/40 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b14]",
                   ]}
                 >
                   {/* Image / placeholder */}
@@ -231,19 +231,19 @@ const groups = franchises.map((f) => ({
                         </svg>
                       </div>
                       <div>
-                        <h4 class:list={["font-['Poppins'] font-bold text-[17px] leading-[22px] text-[#0A0A0A] mb-0.5 transition-colors", !isComingSoon && "group-hover:text-[#3253CC]"]}>
+                        <h4 class:list={["font-['Poppins'] font-bold text-[17px] leading-[22px] text-white mb-0.5 transition-colors", !isComingSoon && "group-hover:text-[#859EF8]"]}>
                           {loc.area}
                         </h4>
-                        <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#3253CC] uppercase">
+                        <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#859EF8] uppercase">
                           {loc.city}
                         </span>
                       </div>
                     </div>
-                    <div class="bg-[#F6F7FF] rounded-[8px] p-3 flex justify-between items-center gap-2">
-                      <span class="font-['Poppins'] font-medium text-[14px] leading-[20px] text-[#171717] truncate">
+                    <div class="bg-white/[0.04] border border-white/5 rounded-[8px] p-3 flex justify-between items-center gap-2">
+                      <span class="font-['Poppins'] font-medium text-[14px] leading-[20px] text-[#d4dbf0] truncate">
                         {loc.venue}
                       </span>
-                      <span class="bg-[#E0E7FF] rounded-[6px] px-2.5 py-1 font-['Poppins'] font-bold text-[10px] leading-[15px] text-[#3253CC] whitespace-nowrap flex-shrink-0">
+                      <span class="bg-[#3253CC]/20 rounded-[6px] px-2.5 py-1 font-['Poppins'] font-bold text-[10px] leading-[15px] text-[#859EF8] whitespace-nowrap flex-shrink-0">
                         {loc.footfall}
                       </span>
                     </div>

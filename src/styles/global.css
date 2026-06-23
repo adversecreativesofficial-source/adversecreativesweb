@@ -11,14 +11,22 @@
 }
 
 :root {
-  --bg-color: #ffffff;
-  --text-color: #000000;
-  --icon-color: #000000;
+  /* Dark, Porsche-style palette (brand blue kept as accent) */
+  --bg-color: #080b14;
+  --bg-elev: #0e1424;
+  --surface: #131b2f;
+  --surface-2: #0f1626;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-color: #eef1fb;
+  --text-muted: #9aa6c6;
+  --accent: #6e8bff;
+  --icon-color: #ffffff;
 }
 
 html {
   font-family: "Inter", sans-serif;
   scroll-behavior: smooth;
+  background-color: var(--bg-color);
 }
 
 body {
