@@ -24,10 +24,12 @@ const {
   <div class="text-center mb-16 flex flex-col items-center gap-2">
     <span
       class="font-poppins font-medium text-[20px] leading-[30px] text-[#3253CC]"
+      data-reveal
       >{label}</span
     >
     <h2
       class="font-poppins font-semibold text-[36px] leading-[54px] text-[#232323]"
+      data-reveal
     >
       {title}
       <span
@@ -37,6 +39,7 @@ const {
     </h2>
     <p
       class="font-poppins font-normal text-[20px] leading-[30px] text-[#565656] max-w-2xl mx-auto"
+      data-reveal
     >
       {description}
     </p>
@@ -45,7 +48,8 @@ const {
   <div class="flex flex-col lg:grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Large Image/Video Area -->
     <div
-      class="showcase-item lg:col-span-2 relative rounded-3xl overflow-hidden group h-[500px] opacity-0 translate-y-8"
+      data-reveal-img
+      class="lg:col-span-2 relative rounded-3xl overflow-hidden group h-[500px]"
     >
       <div class="absolute inset-0 bg-gray-50 flex items-center justify-center">
         {
@@ -85,7 +89,8 @@ const {
 
     <!-- Right Side Info Card -->
     <div
-      class="showcase-item flex flex-col justify-end relative overflow-visible opacity-0 translate-y-8"
+      data-reveal
+      class="flex flex-col justify-end relative overflow-visible"
     >
       <!-- Background Image if present -->
       {
@@ -137,22 +142,4 @@ const {
     </div>
   </div>
 
-  <script>
-    import { gsap } from "gsap";
-    import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    gsap.to(".showcase-item", {
-      scrollTrigger: {
-        trigger: ".showcase-item",
-        start: "top 80%",
-      },
-      y: 0,
-      opacity: 1,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: "power2.out",
-    });
-  </script>
 </section>

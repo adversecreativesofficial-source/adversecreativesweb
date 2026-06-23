@@ -26,10 +26,12 @@ const { label, title, highlight, description, items } = Astro.props as Props;
   <div class="mb-12 flex flex-col items-start gap-2 max-w-4xl">
     <span
       class="font-poppins font-medium text-[20px] leading-[30px] text-[#3253CC]"
+      data-reveal
       >{label}</span
     >
     <h2
       class="font-poppins font-semibold text-[36px] leading-[54px] text-[#232323]"
+      data-reveal
     >
       {title}
       <span
@@ -39,6 +41,7 @@ const { label, title, highlight, description, items } = Astro.props as Props;
     </h2>
     <p
       class="font-poppins font-normal text-[20px] leading-[30px] text-[#565656] max-w-3xl"
+      data-reveal
     >
       {description}
     </p>
@@ -47,7 +50,7 @@ const { label, title, highlight, description, items } = Astro.props as Props;
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     {
       items.map((feature, index) => (
-        <div class="feature-card group relative h-80 rounded-2xl overflow-hidden cursor-pointer opacity-0 translate-y-8">
+        <div data-reveal-card class="group relative h-80 rounded-2xl overflow-hidden cursor-pointer">
           <img
             src={featureImages[index].src}
             alt={feature.title}
@@ -73,23 +76,3 @@ const { label, title, highlight, description, items } = Astro.props as Props;
   </div>
 </section>
 
-<script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  gsap.to(".feature-card", {
-    scrollTrigger: {
-      trigger: ".feature-card",
-      start: "top 85%",
-    },
-    y: 0,
-    opacity: 1,
-    duration: 0.8,
-    stagger: 0.2,
-    ease: "power2.out",
-  });
-</script>
-
-<style></style>

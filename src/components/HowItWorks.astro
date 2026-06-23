@@ -18,10 +18,10 @@ const stepIcons=[arrow, people, reload, share];
         
         <!-- Header -->
         <div class="text-center mb-16">
-          <span class="text-blue-400 font-bold uppercase tracking-widest text-sm mb-2 block">
+          <span class="text-blue-400 font-bold uppercase tracking-widest text-sm mb-2 block" data-reveal>
             {label}
           </span>
-          <h2 class="text-4xl md:text-5xl font-bold font-outfit">
+          <h2 class="text-4xl md:text-5xl font-bold font-outfit" data-reveal>
             {title}
           </h2>
         </div>
@@ -29,13 +29,13 @@ const stepIcons=[arrow, people, reload, share];
         <div class="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-20 lg:items-center">
           
           <!-- Image Section -->
-          <div class="relative hiw-image opacity-0 translate-y-8 flex justify-center lg:block">
+          <div class="relative flex justify-center lg:block">
              <div class="relative">
                 <!-- Data Container: 506x555 -->
                 <div class="hidden lg:block w-[506px] h-[555px] bg-gradient-to-br from-[#3253CC] to-[#011661] rounded-[20px]"></div>
-                
+
                 <!-- Image: 593x448, positioned to go out -->
-                <div class="lg:absolute lg:bottom-0 lg:left-0 w-full max-w-[593px] h-auto lg:h-[448px] rounded-[20px] overflow-hidden">
+                <div data-reveal-img class="lg:absolute lg:bottom-0 lg:left-0 w-full max-w-[593px] h-auto lg:h-[448px] rounded-[20px] overflow-hidden">
                   <Image
                     src={mainImage}
                     alt="How it works"
@@ -52,7 +52,7 @@ const stepIcons=[arrow, people, reload, share];
 
             {
               steps.map((step, index) => (
-                <div class="hiw-step flex gap-6 md:gap-8 relative pb-12 last:pb-0 opacity-0 translate-x-8">
+                <div data-reveal class="flex gap-6 md:gap-8 relative pb-12 last:pb-0">
                   <!-- Icon -->
                   <div class="relative z-10 shrink-0">
                     <div class="w-16 h-16 rounded-full bg-[#EBEFFF] flex items-center justify-center text-white shrink-0 z-10 relative">
@@ -77,36 +77,6 @@ const stepIcons=[arrow, people, reload, share];
     </div>
   </div>
 </section>
-
-<script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  gsap.to(".hiw-image", {
-    scrollTrigger: {
-      trigger: ".hiw-image",
-      start: "top 80%",
-    },
-    y: 0,
-    opacity: 1,
-    duration: 0.8,
-    ease: "power2.out",
-  });
-
-  gsap.to(".hiw-step", {
-    scrollTrigger: {
-      trigger: ".hiw-step",
-      start: "top 80%",
-    },
-    x: 0,
-    opacity: 1,
-    duration: 0.6,
-    stagger: 0.2,
-    ease: "power2.out",
-  });
-</script>
 
 <style>
   :global([data-theme="light"]) #how-it-works-section {

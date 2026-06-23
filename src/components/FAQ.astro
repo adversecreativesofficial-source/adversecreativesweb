@@ -14,6 +14,7 @@ const { title, items } = Astro.props;
   <div class="text-center mb-12">
     <h2
       class="font-poppins font-semibold text-[36px] leading-[54px] text-[#232323]"
+      data-reveal
     >
       {title}
     </h2>
@@ -22,7 +23,7 @@ const { title, items } = Astro.props;
   <div class="flex flex-col gap-4">
     {
       items.map((item, index) => (
-        <div class="faq-item bg-white rounded-xl overflow-hidden border border-[#EAEAEA] transition-all duration-300">
+        <div data-reveal-card class="faq-item bg-white rounded-xl overflow-hidden border border-[#EAEAEA] transition-all duration-300">
           <button
             class="faq-button w-full px-8 py-6 flex items-center justify-between text-left focus:outline-none transition-colors duration-300 hover:bg-gray-50 text-[#232323]"
             aria-expanded="false"

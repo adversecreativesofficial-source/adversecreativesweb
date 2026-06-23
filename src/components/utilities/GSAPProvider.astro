@@ -1,11 +1,11 @@
 ---
-// Global scroll-reveal engine.
-// Any element marked with `data-reveal` (fade/slide up) or `data-reveal-card`
-// (staggered grid entrance) animates in on scroll. Honors reduced-motion, and
-// never leaves content hidden: the initial hidden state is CSS-only (no lingering
-// inline styles), and a readiness-gated failsafe reveals everything if the engine
-// fails to run. The failsafe is only triggered on real failure (the engine never
-// marked itself ready), so normal below-the-fold scroll reveals are preserved.
+// Global scroll-reveal engine (Porsche-style: refined, restrained, premium).
+//   data-reveal       → content rises + fades in with a smooth ease
+//   data-reveal-card  → same, tuned for staggered grids
+//   data-reveal-img   → media fades in while gently scaling from 1.12 → 1
+//   data-parallax     → subtle scroll-linked parallax (value = strength)
+// Honors reduced-motion. Initial hidden state is CSS-only (no FOUC); a
+// readiness-gated failsafe reveals everything if the engine ever fails to run.
 ---
 
 <script>
@@ -19,12 +19,12 @@
 
   function reveal(
     selector: string,
-    opts: { y: number; duration: number; stagger: number }
+    opts: { y: number; duration: number; stagger: number; ease?: string }
   ) {
     const els = gsap.utils.toArray<HTMLElement>(selector);
     if (!els.length) return;
     ScrollTrigger.batch(els, {
-      start: "top 90%",
+      start: "top 86%",
       once: true,
       onEnter: (batch) =>
         gsap.fromTo(
@@ -35,42 +35,93 @@
             y: 0,
             duration: opts.duration,
             stagger: opts.stagger,
-            ease: "power2.out",
+            ease: opts.ease ?? "power3.out",
             overwrite: true,
           }
         ),
     });
   }
 
+  function revealImages() {
+    const wraps = gsap.utils.toArray<HTMLElement>("[data-reveal-img]");
+    if (!wraps.length) return;
+    ScrollTrigger.batch(wraps, {
+      start: "top 88%",
+      once: true,
+      onEnter: (batch) =>
+        batch.forEach((wrap) => {
+          const media = wrap.querySelector<HTMLElement>("img, video, picture");
+          gsap.fromTo(
+            wrap,
+            { opacity: 0 },
+            { opacity: 1, duration: 1, ease: "power2.out", overwrite: true }
+          );
+          if (media) {
+            gsap.fromTo(
+              media,
+              { scale: 1.12 },
+              { scale: 1, duration: 1.4, ease: "expo.out", overwrite: true }
+            );
+          }
+        }),
+    });
+  }
+
+  function parallax() {
+    gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
+      const strength = parseFloat(el.dataset.parallax || "0.12");
+      gsap.fromTo(
+        el,
+        { yPercent: -strength * 50 },
+        {
+          yPercent: strength * 50,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        }
+      );
+    });
+  }
+
   if (reduce) {
-    // Reveal everything immediately; CSS media query covers this too.
     root.classList.add("gsap-failsafe");
   } else {
-    reveal("[data-reveal]", { y: 24, duration: 0.7, stagger: 0.08 });
-    reveal("[data-reveal-card]", { y: 32, duration: 0.6, stagger: 0.07 });
+    reveal("[data-reveal]", { y: 42, duration: 1.0, stagger: 0.09 });
+    reveal("[data-reveal-card]", { y: 34, duration: 0.9, stagger: 0.08 });
+    revealImages();
+    parallax();
     requestAnimationFrame(() => ScrollTrigger.refresh());
   }
 
-  // Tell the Layout failsafe the engine is up, so it won't force-reveal.
   (window as any).__gsapRevealReady = true;
 </script>
 
 <style is:global>
   /* Initial hidden state (CSS-only) while the engine is active and healthy. */
   html.gsap-reveal:not(.gsap-failsafe) [data-reveal],
-  html.gsap-reveal:not(.gsap-failsafe) [data-reveal-card] {
+  html.gsap-reveal:not(.gsap-failsafe) [data-reveal-card],
+  html.gsap-reveal:not(.gsap-failsafe) [data-reveal-img] {
     opacity: 0;
   }
-  /* Failsafe / reduced-motion: force everything visible, overriding any inline
-     opacity GSAP may have set mid-animation before failing. */
+  /* Media scale-reveal needs the wrapper to clip the over-scaled child. */
+  [data-reveal-img] {
+    overflow: hidden;
+  }
+  /* Failsafe / reduced-motion: force everything visible. */
   html.gsap-failsafe [data-reveal],
-  html.gsap-failsafe [data-reveal-card] {
+  html.gsap-failsafe [data-reveal-card],
+  html.gsap-failsafe [data-reveal-img] {
     opacity: 1 !important;
     transform: none !important;
   }
   @media (prefers-reduced-motion: reduce) {
     html.gsap-reveal [data-reveal],
-    html.gsap-reveal [data-reveal-card] {
+    html.gsap-reveal [data-reveal-card],
+    html.gsap-reveal [data-reveal-img] {
       opacity: 1 !important;
     }
   }

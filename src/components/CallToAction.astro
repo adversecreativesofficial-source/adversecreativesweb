@@ -12,11 +12,11 @@ const { title, subtitle, ctaButtons } = Astro.props as Props;
   style={`background-image: url("${footerFrame.src}");`}
 >
   <div class="max-w-4xl mx-auto text-center relative z-10">
-    <h2 class="text-3xl md:text-5xl font-bold font-outfit mb-4 text-white">
+    <h2 class="text-3xl md:text-5xl font-bold font-outfit mb-4 text-white" data-reveal>
       {title}
     </h2>
-    <p class="text-gray-300 mb-8 text-lg">{subtitle}</p>
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+    <p class="text-gray-300 mb-8 text-lg" data-reveal>{subtitle}</p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4" data-reveal>
       {
         ctaButtons?.map((btn: any) => (
           <a
