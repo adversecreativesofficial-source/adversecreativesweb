@@ -12,14 +12,25 @@ const {
   description,
   mainImage,
   videoUrl,
+  videos,
   rightImage,
   features,
 } = Astro.props as Props;
+
+// Build the auto-rotating slide list: prefer `videos`, fall back to the single
+// `videoUrl`. Empty → still image with a play affordance.
+const slides = (videos && videos.length
+  ? videos
+  : videoUrl
+    ? [videoUrl]
+    : []
+).filter(Boolean);
 ---
 
 <section
   id="showcase-section"
-  class="py-20 px-6 md:px-12 max-w-7xl mx-auto transition-colors duration-300"
+  data-section-theme="dark"
+  class="py-24 px-6 md:px-12 max-w-7xl mx-auto"
 >
   <div class="text-center mb-16 flex flex-col items-center gap-2">
     <span
@@ -46,45 +57,64 @@ const {
   </div>
 
   <div class="flex flex-col lg:grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Large Image/Video Area -->
+    <!-- Large Video Carousel (auto-slides between videos) -->
     <div
       data-reveal-img
       class="lg:col-span-2 relative rounded-3xl overflow-hidden group h-[500px]"
     >
-      <div class="absolute inset-0 bg-[#0e1424] flex items-center justify-center">
-        {
-          videoUrl ? (
-            <video
-              src={videoUrl}
-              poster={mainImage}
-              autoplay
-              loop
-              muted
-              playsinline
+      {
+        slides.length ? (
+          <div class="showcase-carousel absolute inset-0 bg-[#0e1424]">
+            {slides.map((src, i) => (
+              <video
+                data-slide={i}
+                src={src}
+                poster={mainImage}
+                autoplay
+                loop
+                muted
+                playsinline
+                preload={i === 0 ? "auto" : "metadata"}
+                class:list={[
+                  "showcase-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out",
+                  i === 0 ? "opacity-100" : "opacity-0",
+                ]}
+              />
+            ))}
+
+            {slides.length > 1 && (
+              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+                {slides.map((_, i) => (
+                  <button
+                    type="button"
+                    data-dot={i}
+                    aria-label={`Show video ${i + 1}`}
+                    class:list={[
+                      "showcase-dot h-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                      i === 0 ? "w-6 bg-white" : "w-2.5 bg-white/40 hover:bg-white/70",
+                    ]}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class="absolute inset-0 bg-[#0e1424] flex items-center justify-center">
+            <img
+              src={mainImage}
+              alt="City Street Screen"
               class="w-full h-full object-cover"
             />
-          ) : (
-            <>
-              <img
-                src={mainImage}
-                alt="City Street Screen"
-                class="w-full h-full object-cover"
-              />
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:bg-white/30 transition-all">
-                  <svg
-                    class="w-6 h-6 text-white ml-1"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 cursor-pointer hover:bg-white/30 transition-all">
+                <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </div>
-            </>
-          )
-        }
-      </div>
+            </div>
+          </div>
+        )
+      }
     </div>
 
     <!-- Right Side Info Card -->
@@ -141,5 +171,74 @@ const {
       </div>
     </div>
   </div>
-
 </section>
+
+<script>
+  // Auto-rotating video carousel for "Our Screens. Your Visibility."
+  function setupShowcaseCarousel() {
+    document
+      .querySelectorAll<HTMLElement>(".showcase-carousel")
+      .forEach((car) => {
+        const slides = Array.from(
+          car.querySelectorAll<HTMLVideoElement>(".showcase-slide")
+        );
+        const dots = Array.from(
+          car.querySelectorAll<HTMLButtonElement>(".showcase-dot")
+        );
+        if (slides.length < 2) return;
+
+        const reduce = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        let idx = 0;
+        let timer: number | undefined;
+        const INTERVAL = 5000;
+
+        const show = (n: number) => {
+          idx = (n + slides.length) % slides.length;
+          slides.forEach((v, i) => {
+            const active = i === idx;
+            v.style.opacity = active ? "1" : "0";
+            if (active) {
+              try {
+                v.currentTime = 0;
+                v.play?.().catch(() => {});
+              } catch {}
+            }
+          });
+          dots.forEach((d, i) => {
+            const active = i === idx;
+            d.classList.toggle("w-6", active);
+            d.classList.toggle("bg-white", active);
+            d.classList.toggle("w-2.5", !active);
+            d.classList.toggle("bg-white/40", !active);
+          });
+        };
+
+        const stop = () => {
+          if (timer) window.clearInterval(timer);
+          timer = undefined;
+        };
+        const start = () => {
+          if (reduce) return;
+          stop();
+          timer = window.setInterval(() => show(idx + 1), INTERVAL);
+        };
+
+        dots.forEach((d, i) =>
+          d.addEventListener("click", () => {
+            show(i);
+            start();
+          })
+        );
+        car.addEventListener("mouseenter", stop);
+        car.addEventListener("mouseleave", start);
+
+        show(0);
+        start();
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", setupShowcaseCarousel);
+  document.addEventListener("astro:page-load", setupShowcaseCarousel);
+</script>

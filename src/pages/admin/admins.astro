@@ -9,12 +9,8 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
       <form id="admin-form" class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-5">
         <h2 class="font-['Poppins'] font-bold text-[15px] text-[#0A0A0A] mb-4">Add franchise admin</h2>
         <div class="mb-3">
-          <label class="fl">Email *</label>
-          <input id="a-email" type="email" class="fi" placeholder="manager@adverse.com" />
-        </div>
-        <div class="mb-3">
-          <label class="fl">Temporary password *</label>
-          <input id="a-pass" type="text" class="fi" placeholder="At least 6 characters" />
+          <label class="fl">Google email *</label>
+          <input id="a-email" type="email" class="fi" placeholder="manager@gmail.com" />
         </div>
         <div class="mb-3">
           <label class="fl">Role *</label>
@@ -29,10 +25,10 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
         </div>
         <p id="form-msg" class="text-[13px] mb-3 min-h-[1px]" aria-live="polite"></p>
         <button type="submit" id="a-save" class="w-full min-h-[44px] bg-[#3253CC] text-white rounded-full font-['Poppins'] font-bold text-[13px] hover:bg-[#2438B5] flex items-center justify-center gap-2">
-          <span class="save-label">Create admin</span>
+          <span class="save-label">Grant access</span>
           <span class="save-spinner hidden w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
         </button>
-        <p class="text-[12px] text-[#9AA3B2] mt-3">Share the temporary password securely; they can change it later.</p>
+        <p class="text-[12px] text-[#9AA3B2] mt-3">They sign in at <span class="font-semibold">/admin/login</span> with this Google account — no password needed.</p>
       </form>
     </div>
 
@@ -54,11 +50,12 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 <script>
   import { guardAdmin } from "../../lib/auth";
   import {
-    listAdmins, createAdminAccount, setAdminDisabled,
+    listAdmins, grantAdmin, setAdminDisabled,
     FRANCHISES, franchiseName, type AdminRecord,
   } from "../../lib/admin-data";
 
   guardAdmin({ requireSuper: true }).then(({ user }) => {
+    const myEmail = (user.email ?? "").toLowerCase();
     const listEl = document.getElementById("admins-list")!;
     const form = document.getElementById("admin-form") as HTMLFormElement;
     const msg = document.getElementById("form-msg")!;
@@ -87,7 +84,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
       }
       listEl.innerHTML = admins
         .map((a) => {
-          const isSelf = a.uid === user.uid;
+          const isSelf = a.email.toLowerCase() === myEmail;
           return `
         <div class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-4 flex items-center justify-between gap-3 ${a.disabled ? "opacity-60" : ""}">
           <div class="min-w-0">
@@ -97,7 +94,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
           ${
             isSelf
               ? ""
-              : `<button data-toggle="${a.uid}" data-disabled="${a.disabled ? "1" : "0"}" class="text-[13px] font-semibold px-3 py-1.5 rounded-lg ${a.disabled ? "bg-[#E6F7EE] text-[#067647]" : "bg-[#FEE9E9] text-[#C0362C]"}">${a.disabled ? "Enable" : "Disable"}</button>`
+              : `<button data-toggle="${esc(a.email)}" data-disabled="${a.disabled ? "1" : "0"}" class="text-[13px] font-semibold px-3 py-1.5 rounded-lg ${a.disabled ? "bg-[#E6F7EE] text-[#067647]" : "bg-[#FEE9E9] text-[#C0362C]"}">${a.disabled ? "Enable" : "Disable"}</button>`
           }
         </div>`;
         })
@@ -107,12 +104,12 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
     listEl.addEventListener("click", async (e) => {
       const btn = (e.target as HTMLElement).closest("[data-toggle]") as HTMLButtonElement | null;
       if (!btn) return;
-      const uid = btn.dataset.toggle!;
+      const email = btn.dataset.toggle!;
       const disable = btn.dataset.disabled !== "1";
       btn.disabled = true;
       try {
-        await setAdminDisabled(uid, disable);
-        const a = admins.find((x) => x.uid === uid);
+        await setAdminDisabled(email, disable);
+        const a = admins.find((x) => x.email === email);
         if (a) a.disabled = disable;
         render();
       } catch {
@@ -126,36 +123,31 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
       msg.textContent = "";
       msg.className = "text-[13px] mb-3 min-h-[1px]";
       const email = $("a-email").value.trim();
-      const password = $("a-pass").value;
       const role = roleSel.value as "super" | "franchise";
       const franchise = sel("a-franchise").value;
-      if (!email || password.length < 6) {
-        msg.textContent = "Enter an email and a password of at least 6 characters.";
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk) {
+        msg.textContent = "Enter a valid Google email address.";
         msg.classList.add("text-[#DC2626]");
         return;
       }
       saveBtn.disabled = true;
-      saveLabel.textContent = "Creating…";
+      saveLabel.textContent = "Granting…";
       saveSpinner.classList.remove("hidden");
       try {
-        await createAdminAccount({ email, password, role, franchise });
-        msg.textContent = `Created ${role === "super" ? "super admin" : franchiseName(franchise) + " admin"} ${email}.`;
+        await grantAdmin({ email, role, franchise });
+        msg.textContent = `Granted ${role === "super" ? "super admin" : franchiseName(franchise) + " admin"} access to ${email.toLowerCase()}.`;
         msg.classList.add("text-[#067647]");
         form.reset();
         syncFranchiseVisibility();
         admins = await listAdmins();
         render();
       } catch (err: any) {
-        const code = err?.code ?? "";
-        msg.textContent = code.includes("email-already-in-use")
-          ? "That email already has an account."
-          : code.includes("weak-password")
-          ? "Password is too weak (min 6 characters)."
-          : "Could not create admin. Try again.";
+        msg.textContent = "Could not grant access. Try again.";
         msg.classList.add("text-[#DC2626]");
       } finally {
         saveBtn.disabled = false;
-        saveLabel.textContent = "Create admin";
+        saveLabel.textContent = "Grant access";
         saveSpinner.classList.add("hidden");
       }
     });

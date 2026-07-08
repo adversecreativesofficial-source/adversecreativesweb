@@ -7,12 +7,17 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+    // Admin records are keyed by the signer's Google email (lowercased).
+    function adminEmail() {
+      return request.auth.token.email;
+    }
     function adminDoc() {
-      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+      return get(/databases/$(database)/documents/admins/$(adminEmail())).data;
     }
     function isAdmin() {
       return isSignedIn()
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && adminEmail() != null
+        && exists(/databases/$(database)/documents/admins/$(adminEmail()))
         && adminDoc().disabled != true;
     }
     function isSuper() {
@@ -48,10 +53,10 @@ service cloud.firestore {
       allow write: if isSuper();
     }
 
-    // ---- admins (roles) ----
-    match /admins/{uid} {
+    // ---- admins (roles, keyed by lowercased Google email) ----
+    match /admins/{email} {
       // An admin can read their own role; super can read all.
-      allow read: if isSignedIn() && (request.auth.uid == uid || isSuper());
+      allow read: if isSignedIn() && (adminEmail() == email || isSuper());
       // Only super admins create/modify admin roles.
       allow write: if isSuper();
     }

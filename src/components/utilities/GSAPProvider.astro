@@ -87,6 +87,25 @@
     });
   }
 
+  // Scroll-driven theme switch (Porsche-style). The page is light by default
+  // (set in Layout). It flips to dark only while a dark section ("OUR SCREENS")
+  // is in view, then snaps back to light — exactly two quick transitions.
+  function sectionThemes() {
+    const darkSections =
+      gsap.utils.toArray<HTMLElement>('[data-section-theme="dark"]');
+    if (!darkSections.length) return;
+
+    darkSections.forEach((sec) => {
+      ScrollTrigger.create({
+        trigger: sec,
+        start: "top 65%",
+        end: "bottom 35%",
+        onToggle: (self) =>
+          root.setAttribute("data-theme", self.isActive ? "dark" : "light"),
+      });
+    });
+  }
+
   if (reduce) {
     root.classList.add("gsap-failsafe");
   } else {
@@ -94,8 +113,12 @@
     reveal("[data-reveal-card]", { y: 34, duration: 0.9, stagger: 0.08 });
     revealImages();
     parallax();
-    requestAnimationFrame(() => ScrollTrigger.refresh());
   }
+
+  // Theme switching runs even under reduced motion (it's a color change, not
+  // motion); the CSS transition keeps it gentle.
+  sectionThemes();
+  requestAnimationFrame(() => ScrollTrigger.refresh());
 
   (window as any).__gsapRevealReady = true;
 </script>

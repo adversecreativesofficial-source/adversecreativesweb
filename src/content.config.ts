@@ -53,6 +53,10 @@ const pages = defineCollection({
       description: z.string(),
       mainImage: z.string(),
       videoUrl: z.string().optional(),
+      // Multiple videos auto-rotate (carousel) in the showcase display. Add as
+      // many hosted video URLs (mp4/webm) as you like; they cross-fade on a
+      // timer. Falls back to `videoUrl`, then `mainImage`, when empty.
+      videos: z.array(z.string()).optional(),
       rightImage: z.string().optional(),
       features: z.array(
         z.object({

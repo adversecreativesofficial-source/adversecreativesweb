@@ -15,27 +15,27 @@ const icons = [icon1, icon2, icon3, icon4];
 
 <section
   id="stats-section"
-  class="py-20 w-full bg-[#080b14] transition-colors duration-300"
+  class="py-24 w-full"
 >
   <div class="px-6 md:px-12 max-w-7xl mx-auto">
     <div class="mb-12 flex flex-col items-start gap-2 max-w-4xl">
       <span
-        class="font-poppins font-medium text-[20px] leading-[30px] text-[#859EF8]"
+        class="font-poppins font-medium text-[20px] leading-[30px] text-[#3253CC]"
         data-reveal
         >{label}</span
       >
       <h2
-        class="font-poppins font-semibold text-[36px] leading-[54px] text-white"
+        class="font-poppins font-semibold text-[36px] leading-[54px] text-[#0b1120]"
         data-reveal
       >
         {title}
         <span
-          class="text-transparent bg-clip-text bg-gradient-to-r from-[#7E9BFF] to-[#4068FC]"
+          class="text-transparent bg-clip-text bg-gradient-to-r from-[#3253CC] to-[#00229D]"
           >{highlight}</span
         >
       </h2>
       <p
-        class="font-poppins font-normal text-[20px] leading-[30px] text-[#9aa6c6] max-w-3xl"
+        class="font-poppins font-normal text-[20px] leading-[30px] text-[#475569] max-w-3xl"
         data-reveal
       >
         {description}
@@ -43,13 +43,13 @@ const icons = [icon1, icon2, icon3, icon4];
     </div>
 
     <div
-      class="flex flex-col items-center p-6 gap-6 w-full max-w-[1280px] bg-white/[0.03] border border-white/10 rounded-xl mx-auto"
+      class="flex flex-col items-center p-6 gap-6 w-full max-w-[1280px] bg-[#f8fafc] border border-[#e2e8f0] rounded-xl mx-auto"
     >
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {
           items.map((stat, index) => (
-            <div class="stat-card bg-white/[0.04] border border-white/10 p-8 rounded-2xl transition-colors hover:bg-white/[0.06]" data-reveal-card>
-              <div class="w-12 h-12 bg-[#3253CC]/20 rounded-xl flex items-center justify-center mb-6 text-[#859EF8] group-hover:scale-110 transition-transform">
+            <div class="stat-card bg-white border border-[#e2e8f0] p-8 rounded-2xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg" data-reveal-card>
+              <div class="w-12 h-12 bg-[#3253CC]/10 rounded-xl flex items-center justify-center mb-6 text-[#3253CC] group-hover:scale-110 transition-transform">
                 {/* Icons */}
                 <Image
                   src={icons[index] || icon1}
@@ -58,8 +58,8 @@ const icons = [icon1, icon2, icon3, icon4];
                 />
               </div>
               <div>
-                <h3 class="text-xl font-bold mb-3 font-outfit text-white">{stat.title}</h3>
-                <p class="text-[#9aa6c6] text-sm leading-relaxed">
+                <h3 class="text-xl font-bold mb-3 font-outfit text-[#0b1120]">{stat.title}</h3>
+                <p class="text-[#475569] text-sm leading-relaxed">
                   {stat.desc}
                 </p>
               </div>
@@ -70,33 +70,3 @@ const icons = [icon1, icon2, icon3, icon4];
     </div>
   </div>
 </section>
-
-<style>
-  :global([data-theme="light"]) #stats-section h2 {
-    color: #000000;
-  }
-  :global([data-theme="light"]) #stats-section p.text-gray-400 {
-    color: #4b5563; /* gray-600 */
-  }
-
-  /* Stat Card Overrides */
-  :global([data-theme="light"]) .stat-card {
-    background-color: #ffffff !important;
-    border: 1px solid #e2e8f0 !important; /* slate-200 */
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-
-  :global([data-theme="light"]) .stat-card:hover {
-    background-color: #f8fafc !important; /* slate-50 */
-    transform: translateY(-2px);
-    box-shadow:
-      0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-
-  :global([data-theme="light"]) .stat-card h3 {
-    color: #000000;
-  }
-</style>

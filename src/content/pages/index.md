@@ -15,7 +15,7 @@ hero:
       link: "/upload"
       variant: "primary"
     - text: "View Locations"
-      link: "/contact"
+      link: "/contact#locations"
       variant: "secondary"
 
 stats:
@@ -43,7 +43,10 @@ showcase:
   highlight: "Your Visibility."
   description: "High-quality digital displays placed strategically for maximum impact."
   mainImage: "https://images.unsplash.com/photo-1510279895818-f24f5a896489?q=80&w=2670&auto=format&fit=crop"
-  videoUrl: "https://res.cloudinary.com/ddppbdlxr/video/upload/v1771525815/15363760_3840_2160_60fps_swndqq_xhfkla.mp4"
+  # Videos auto-rotate (cross-fade every few seconds). Add as many hosted
+  # mp4/webm URLs as you want — they'll auto-slide in order.
+  videos:
+    - "https://res.cloudinary.com/ddppbdlxr/video/upload/v1771525815/15363760_3840_2160_60fps_swndqq_xhfkla.mp4"
   rightImage: "https://images.unsplash.com/photo-1492551557933-34265f7af79e?q=80&w=2670&auto=format&fit=crop"
   features:
     - text: "Large, eye-level digital screens"

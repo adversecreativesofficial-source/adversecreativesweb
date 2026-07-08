@@ -11,7 +11,7 @@ import "../../styles/global.css";
     <meta name="robots" content="noindex, nofollow" />
     <title>Sign in · AdVerse Admin</title>
   </head>
-  <body class="antialiased min-h-screen flex items-center justify-center px-4" style="background-color:#0A1330">
+  <body class="antialiased min-h-screen flex items-center justify-center px-4" style="background-color:#080b14">
     <div
       class="absolute inset-0 pointer-events-none opacity-70"
       style="background: radial-gradient(60% 80% at 50% 0%, rgba(50,83,204,0.4), transparent 65%);"
@@ -24,26 +24,25 @@ import "../../styles/global.css";
         <p class="text-[#AEB9E1] text-sm mt-2">Sign in to manage your franchise.</p>
       </div>
 
-      <form id="login-form" class="bg-white rounded-[18px] shadow-2xl p-7" novalidate>
-        <div class="mb-4">
-          <label for="email" class="block font-['Poppins'] font-semibold text-sm text-[#1f2433] mb-1.5">Email</label>
-          <input id="email" type="email" autocomplete="email" required
-            class="w-full min-h-[48px] border border-[#d8def0] rounded-xl px-3.5 text-[16px] text-[#0a0a0a] focus:outline-none focus:border-[#3253CC] focus:ring-2 focus:ring-[#3253CC]/15" />
-        </div>
-        <div class="mb-5">
-          <label for="password" class="block font-['Poppins'] font-semibold text-sm text-[#1f2433] mb-1.5">Password</label>
-          <input id="password" type="password" autocomplete="current-password" required
-            class="w-full min-h-[48px] border border-[#d8def0] rounded-xl px-3.5 text-[16px] text-[#0a0a0a] focus:outline-none focus:border-[#3253CC] focus:ring-2 focus:ring-[#3253CC]/15" />
-        </div>
+      <div class="bg-white rounded-[18px] shadow-2xl p-7">
+        <p class="text-center font-['Poppins'] text-sm text-[#6B7280] mb-5">
+          Sign in with your authorised Google account.
+        </p>
 
-        <p id="login-error" class="text-[#DC2626] text-[13px] font-['Poppins'] mb-3 min-h-[1px]" aria-live="polite"></p>
+        <p id="login-error" class="text-[#DC2626] text-[13px] font-['Poppins'] mb-3 min-h-[1px] text-center" aria-live="polite"></p>
 
-        <button id="login-btn" type="submit"
-          class="w-full min-h-[48px] bg-[#3253CC] text-white rounded-full font-['Poppins'] font-bold text-sm hover:bg-[#2438B5] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-          <span class="login-label">Sign in</span>
-          <span class="login-spinner hidden w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+        <button id="google-btn" type="button"
+          class="w-full min-h-[48px] bg-white text-[#1f2433] border border-[#d8def0] rounded-full font-['Poppins'] font-semibold text-sm hover:bg-[#f7f9ff] hover:border-[#3253CC]/40 transition-colors disabled:opacity-60 flex items-center justify-center gap-3">
+          <svg class="google-icon w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09a6.6 6.6 0 0 1 0-4.18V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+          </svg>
+          <span class="login-label">Continue with Google</span>
+          <span class="login-spinner hidden w-4 h-4 border-2 border-[#3253CC]/40 border-t-[#3253CC] rounded-full animate-spin"></span>
         </button>
-      </form>
+      </div>
 
       <p class="text-center text-[#8492C4] text-xs mt-5">
         <a href="/" class="hover:text-white underline">← Back to site</a>
@@ -51,62 +50,61 @@ import "../../styles/global.css";
     </div>
 
     <script>
-      import { adminSignIn, getAdminProfile, adminSignOut } from "../../lib/auth";
+      import { adminSignInWithGoogle, getAdminProfile, adminSignOut } from "../../lib/auth";
       import { onAuthStateChanged } from "firebase/auth";
       import { auth } from "../../lib/firebase";
 
-      const form = document.getElementById("login-form") as HTMLFormElement;
       const errEl = document.getElementById("login-error")!;
-      const btn = document.getElementById("login-btn") as HTMLButtonElement;
+      const btn = document.getElementById("google-btn") as HTMLButtonElement;
       const label = btn.querySelector(".login-label") as HTMLElement;
       const spinner = btn.querySelector(".login-spinner") as HTMLElement;
+      const icon = btn.querySelector(".google-icon") as SVGElement;
 
       // If already signed in as an admin, skip straight to the dashboard.
       const unsub = onAuthStateChanged(auth, async (user) => {
         unsub();
-        if (user && (await getAdminProfile(user.uid))) {
+        if (user && (await getAdminProfile(user.email))) {
           window.location.href = "/admin";
         }
       });
 
       if (new URLSearchParams(location.search).get("denied")) {
-        errEl.textContent = "That account doesn't have admin access.";
+        errEl.textContent = "That Google account doesn't have admin access.";
       }
 
       const setLoading = (on: boolean) => {
         btn.disabled = on;
-        label.textContent = on ? "Signing in…" : "Sign in";
+        label.textContent = on ? "Signing in…" : "Continue with Google";
         spinner.classList.toggle("hidden", !on);
+        icon?.classList.toggle("hidden", on);
       };
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      btn.addEventListener("click", async () => {
         errEl.textContent = "";
-        const email = (document.getElementById("email") as HTMLInputElement).value.trim();
-        const password = (document.getElementById("password") as HTMLInputElement).value;
-        if (!email || !password) {
-          errEl.textContent = "Enter your email and password.";
-          return;
-        }
         setLoading(true);
         try {
-          const cred = await adminSignIn(email, password);
-          const admin = await getAdminProfile(cred.user.uid);
+          const cred = await adminSignInWithGoogle();
+          const admin = await getAdminProfile(cred.user.email);
           if (!admin) {
             await adminSignOut();
-            errEl.textContent = "That account doesn't have admin access.";
+            errEl.textContent = "That Google account doesn't have admin access.";
             setLoading(false);
             return;
           }
           window.location.href = "/admin";
         } catch (err: any) {
           const code = err?.code ?? "";
-          errEl.textContent =
-            code.includes("invalid-credential") ||
-            code.includes("wrong-password") ||
-            code.includes("user-not-found")
-              ? "Incorrect email or password."
-              : "Sign in failed. Please try again.";
+          if (
+            code.includes("popup-closed-by-user") ||
+            code.includes("cancelled-popup-request")
+          ) {
+            // User dismissed the Google popup — no error message needed.
+            setLoading(false);
+            return;
+          }
+          errEl.textContent = code.includes("popup-blocked")
+            ? "Popup blocked. Allow popups for this site and try again."
+            : "Sign in failed. Please try again.";
           setLoading(false);
         }
       });

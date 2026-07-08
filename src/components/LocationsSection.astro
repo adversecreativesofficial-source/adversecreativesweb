@@ -1,6 +1,4 @@
 ---
-import { Image } from "astro:assets";
-
 type Location = {
   area: string;
   city: string;
@@ -31,39 +29,6 @@ type MapSection = {
 
 const { mapSection } = Astro.props as { mapSection: MapSection };
 
-// Real screen photos (optional) — drop files into src/assets/screens/.
-// Falls back to a generated gradient placeholder when missing.
-const screenImages = import.meta.glob<{ default: ImageMetadata }>(
-  "../assets/screens/*.{jpeg,jpg,png,webp,avif}",
-  { eager: true }
-);
-
-function resolveImage(image?: string): ImageMetadata | null {
-  if (!image) return null;
-  const match = screenImages[`../assets/screens/${image}`];
-  return match ? match.default : null;
-}
-
-// Deterministic brand-blue gradient + initials for placeholder cards.
-const GRADIENTS = [
-  ["#3253CC", "#1B2C7A"],
-  ["#4068FC", "#00229D"],
-  ["#5A7BFF", "#2438B5"],
-  ["#2E45B8", "#0A1A66"],
-  ["#3A5BD9", "#13218C"],
-];
-function placeholderFor(venue: string) {
-  let hash = 0;
-  for (let i = 0; i < venue.length; i++) hash = (hash * 31 + venue.charCodeAt(i)) >>> 0;
-  const [from, to] = GRADIENTS[hash % GRADIENTS.length];
-  const initials = venue
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
-  return { from, to, initials };
-}
-
 // Build franchise groups in display order (active first by `order`).
 const fallbackFranchises: Franchise[] = [
   { id: "bangalore", name: "Bangalore", status: "active", order: 1 },
@@ -72,15 +37,47 @@ const franchises = (mapSection.franchises ?? fallbackFranchises)
   .slice()
   .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
 
-const groups = franchises.map((f) => ({
-  franchise: f,
-  locations: mapSection.locations.filter(
+// Sum the daily footfall for a set of locations (ignores non-numeric values
+// like "Coming soon"). Returns null when no numbers are present.
+function footfallTotal(locs: Location[]): number | null {
+  let sum = 0;
+  let hasNumber = false;
+  for (const l of locs) {
+    const m = String(l.footfall ?? "").replace(/,/g, "").match(/\d+/);
+    if (m) {
+      sum += parseInt(m[0], 10);
+      hasNumber = true;
+    }
+  }
+  return hasNumber ? sum : null;
+}
+
+function formatFootfall(n: number | null): string {
+  if (n == null) return "Coming soon";
+  if (n >= 1000) return `~${Math.round(n / 1000)}K`;
+  return `~${n}`;
+}
+
+// Per-region totals (the only thing we display now).
+const regions = franchises.map((f) => {
+  const locs = mapSection.locations.filter(
     (l) => (l.franchise ?? "bangalore") === f.id
-  ),
-}));
+  );
+  const total = footfallTotal(locs);
+  return {
+    id: f.id,
+    name: f.name,
+    status: f.status,
+    tagline: f.tagline,
+    locations: locs.length,
+    venues: locs.length,
+    footfall: formatFootfall(total),
+    list: locs,
+  };
+});
 ---
 
-<section class="py-20 bg-[#080b14]" data-reveal-section>
+<section id="locations" class="py-20 bg-[#080b14] scroll-mt-24" data-reveal-section>
   <div class="max-w-7xl mx-auto px-4 md:px-12 text-center md:text-left">
     {mapSection.label && (
       <span
@@ -99,40 +96,50 @@ const groups = franchises.map((f) => ({
       <span class="text-[#859EF8]">{mapSection.highlight}</span>
     </h2>
     <p
-      class="font-['Poppins'] font-normal text-[18px] leading-[28px] text-[#9aa6c6] max-w-2xl mb-12"
+      class="font-['Poppins'] font-normal text-[18px] leading-[28px] text-[#9aa6c6] max-w-2xl mb-10"
       data-reveal
     >
       {mapSection.description}
     </p>
 
-    {mapSection.stats && (
-      <div
-        class="bg-white/[0.04] border border-white/10 rounded-[16px] p-8 mb-12 flex flex-col md:flex-row justify-between items-center divide-y md:divide-y-0 md:divide-x divide-white/10"
-        data-reveal
-      >
-        {mapSection.stats.map((stat) => (
-          <div class="flex-1 flex flex-col items-center justify-center p-4">
-            <span class="font-['Poppins'] font-bold text-[32px] leading-[1] text-white mb-2">
-              {stat.value}
-            </span>
-            <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#A3A3A3] uppercase">
-              {stat.label}
-            </span>
-          </div>
-        ))}
-      </div>
-    )}
+    {/* Region selector */}
+    <div
+      class="inline-flex p-1.5 bg-white/[0.04] border border-white/10 rounded-full mb-10"
+      role="tablist"
+      aria-label="Choose a region"
+      data-reveal
+    >
+      {regions.map((r, i) => (
+        <button
+          type="button"
+          role="tab"
+          data-region-tab={r.id}
+          aria-selected={i === 0 ? "true" : "false"}
+          class:list={[
+            "region-tab font-['Poppins'] font-bold text-[15px] px-7 py-2.5 rounded-full transition-all duration-300 min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC]",
+            i === 0
+              ? "bg-[#3253CC] text-white shadow-[0_8px_24px_rgba(50,83,204,0.35)]"
+              : "text-[#9aa6c6] hover:text-white",
+          ]}
+        >
+          {r.name}
+        </button>
+      ))}
+    </div>
 
-    {groups.map(({ franchise, locations }) => {
-      const isComingSoon = franchise.status === "coming_soon";
-      return (
-        <div class="mb-16 last:mb-0" data-reveal-section>
-          {/* Franchise header */}
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-8" data-reveal>
-            <div class="text-center md:text-left">
+    {/* Totals panels (only the active region is visible) */}
+    <div class="relative">
+      {regions.map((r, i) => {
+        const isComingSoon = r.status === "coming_soon";
+        return (
+          <div
+            data-region-panel={r.id}
+            class:list={["region-panel", i === 0 ? "" : "hidden"]}
+          >
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
               <div class="flex items-center justify-center md:justify-start gap-3">
-                <h3 class="font-['Poppins'] font-bold text-[28px] md:text-[32px] leading-[1.1] text-white">
-                  {franchise.name}
+                <h3 class="font-['Poppins'] font-bold text-[26px] md:text-[30px] leading-[1.1] text-white">
+                  {r.name}
                 </h3>
                 {isComingSoon ? (
                   <span class="inline-flex items-center gap-1.5 bg-[#FFF4E5] text-[#B26B00] rounded-full px-3 py-1 font-['Poppins'] font-bold text-[11px] tracking-[0.06em] uppercase">
@@ -146,116 +153,147 @@ const groups = franchises.map((f) => ({
                   </span>
                 )}
               </div>
-              {franchise.tagline && (
-                <p class="font-['Poppins'] text-[15px] text-[#9aa6c6] mt-1">
-                  {franchise.tagline}
-                </p>
-              )}
             </div>
+
+            <div class="bg-white/[0.04] border border-white/10 rounded-[16px] p-8 flex flex-col md:flex-row justify-between items-center divide-y md:divide-y-0 md:divide-x divide-white/10">
+              <div class="flex-1 flex flex-col items-center justify-center p-4 w-full">
+                <span class="font-['Poppins'] font-bold text-[40px] leading-[1] text-white mb-2">
+                  {r.locations}
+                </span>
+                <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#A3A3A3] uppercase">
+                  Locations
+                </span>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-center p-4 w-full">
+                <span class="font-['Poppins'] font-bold text-[40px] leading-[1] text-white mb-2">
+                  {r.venues}
+                </span>
+                <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#A3A3A3] uppercase">
+                  Venues
+                </span>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-center p-4 w-full">
+                <span class="font-['Poppins'] font-bold text-[40px] leading-[1] text-white mb-2">
+                  {r.footfall}
+                </span>
+                <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#A3A3A3] uppercase">
+                  Daily Footfall
+                </span>
+              </div>
+            </div>
+
+            {r.tagline && (
+              <p class="font-['Poppins'] text-[15px] text-[#9aa6c6] mt-5 text-center md:text-left">
+                {r.tagline}
+              </p>
+            )}
+
             {isComingSoon && (
               <a
                 href="/upload"
-                class="inline-flex items-center justify-center gap-2 bg-[#3253CC] text-white rounded-full px-6 py-3 font-['Poppins'] font-bold text-[14px] hover:bg-[#2438B5] transition-colors min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC] focus-visible:ring-offset-2"
+                class="inline-flex items-center justify-center gap-2 bg-[#3253CC] text-white rounded-full px-6 py-3 mt-6 font-['Poppins'] font-bold text-[14px] hover:bg-[#2438B5] transition-colors min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b14]"
               >
                 Join the waitlist
               </a>
             )}
-          </div>
 
-          {/* Locations grid (static first; hydrated from Firestore if available) */}
-          <div
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            data-grid={franchise.id}
-            data-status={franchise.status}
-          >
-            {locations.map((loc) => {
-              const img = resolveImage(loc.image);
-              const ph = placeholderFor(loc.venue);
-              const Tag = isComingSoon ? "div" : "a";
-              return (
-                <Tag
-                  {...(!isComingSoon ? { href: loc.link, target: "_blank", rel: "noopener noreferrer" } : {})}
-                  data-reveal-card
-                  class:list={[
-                    "group relative block bg-white/[0.04] rounded-[16px] overflow-hidden border border-white/10 text-left transition-all duration-300",
-                    isComingSoon
-                      ? "opacity-90"
-                      : "hover:shadow-[0px_12px_40px_rgba(50,83,204,0.25)] hover:border-[#3253CC]/40 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC] focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b14]",
-                  ]}
-                >
-                  {/* Image / placeholder */}
-                  <div class="relative aspect-[4/3] overflow-hidden">
-                    {img ? (
-                      <Image
-                        src={img}
-                        alt={`${loc.venue}, ${loc.area}`}
-                        width={800}
-                        height={600}
-                        loading="lazy"
+            {/* Where the screens actually are */}
+            {r.list.length > 0 && (
+              <div class="mt-10">
+                <div class="flex items-center gap-2 mb-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[#859EF8]">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span class="font-['Poppins'] font-bold text-[12px] tracking-[0.08em] uppercase text-[#859EF8]">
+                    Where the screens are
+                  </span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {r.list.map((loc) => {
+                    const Tag = isComingSoon || loc.link === "#" ? "div" : "a";
+                    return (
+                      <Tag
+                        {...(Tag === "a"
+                          ? { href: loc.link, target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
                         class:list={[
-                          "w-full h-full object-cover transition-transform duration-500",
-                          !isComingSoon && "group-hover:scale-105",
+                          "group flex items-start gap-3 bg-white/[0.04] border border-white/10 rounded-[14px] p-4 text-left transition-all duration-300",
+                          Tag === "a"
+                            ? "hover:border-[#3253CC]/50 hover:bg-white/[0.06] hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC]"
+                            : "opacity-90",
                         ]}
-                      />
-                    ) : (
-                      <div
-                        class="w-full h-full flex items-center justify-center"
-                        style={`background: linear-gradient(135deg, ${ph.from}, ${ph.to});`}
-                        role="img"
-                        aria-label={`${loc.venue}, ${loc.area}`}
                       >
-                        <span class="font-['Outfit'] font-bold text-white/90 text-[40px] tracking-wide drop-shadow-sm">
-                          {ph.initials}
-                        </span>
-                        <svg class="absolute bottom-3 right-3 w-6 h-6 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <rect x="2" y="3" width="20" height="14" rx="2" />
-                          <path d="M8 21h8M12 17v4" />
-                        </svg>
-                      </div>
-                    )}
-                    {isComingSoon && (
-                      <div class="absolute inset-0 bg-[#0A1A66]/45 backdrop-blur-[1px] flex items-center justify-center">
-                        <span class="font-['Poppins'] font-bold text-white text-[13px] tracking-[0.08em] uppercase bg-black/30 rounded-full px-4 py-1.5">
-                          Coming Soon
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Body */}
-                  <div class="p-5">
-                    <div class="flex items-start gap-3 mb-4">
-                      <div class="w-9 h-9 rounded-[10px] bg-[#3253CC] flex items-center justify-center flex-shrink-0 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4.5 h-4.5">
-                          <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 class:list={["font-['Poppins'] font-bold text-[17px] leading-[22px] text-white mb-0.5 transition-colors", !isComingSoon && "group-hover:text-[#859EF8]"]}>
-                          {loc.area}
-                        </h4>
-                        <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#859EF8] uppercase">
-                          {loc.city}
-                        </span>
-                      </div>
-                    </div>
-                    <div class="bg-white/[0.04] border border-white/5 rounded-[8px] p-3 flex justify-between items-center gap-2">
-                      <span class="font-['Poppins'] font-medium text-[14px] leading-[20px] text-[#d4dbf0] truncate">
-                        {loc.venue}
-                      </span>
-                      <span class="bg-[#3253CC]/20 rounded-[6px] px-2.5 py-1 font-['Poppins'] font-bold text-[10px] leading-[15px] text-[#859EF8] whitespace-nowrap flex-shrink-0">
-                        {loc.footfall}
-                      </span>
-                    </div>
-                  </div>
-                </Tag>
-              );
-            })}
+                        <div class="w-9 h-9 rounded-[10px] bg-[#3253CC]/15 flex items-center justify-center flex-shrink-0 text-[#859EF8]">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                            <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <div class="flex items-center justify-between gap-2">
+                            <h4 class:list={["font-['Poppins'] font-bold text-[15px] leading-[20px] text-white truncate", Tag === "a" && "group-hover:text-[#859EF8] transition-colors"]}>
+                              {loc.area}
+                            </h4>
+                            {Tag === "a" && (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-[#859EF8] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                              </svg>
+                            )}
+                          </div>
+                          <p class="font-['Poppins'] text-[13px] leading-[18px] text-[#9aa6c6] truncate">
+                            {loc.venue}
+                          </p>
+                          <span class="inline-block mt-1.5 font-['Poppins'] font-bold text-[10px] tracking-[0.06em] text-[#859EF8] uppercase">
+                            {loc.footfall}
+                          </span>
+                        </div>
+                      </Tag>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      );
-    })}
+        );
+      })}
+    </div>
   </div>
 </section>
 
-<script src="../scripts/screens-hydrate.ts"></script>
+<script>
+  function setupRegionSelector() {
+    const section = document.getElementById("locations");
+    if (!section) return;
+    const tabs = section.querySelectorAll<HTMLButtonElement>("[data-region-tab]");
+    const panels = section.querySelectorAll<HTMLElement>("[data-region-panel]");
+
+    const activeCls = [
+      "bg-[#3253CC]",
+      "text-white",
+      "shadow-[0_8px_24px_rgba(50,83,204,0.35)]",
+    ];
+    const idleCls = ["text-[#9aa6c6]"];
+
+    function select(id: string) {
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.regionTab === id;
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+        activeCls.forEach((c) => tab.classList.toggle(c, isActive));
+        idleCls.forEach((c) => tab.classList.toggle(c, !isActive));
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle(
+          "hidden",
+          panel.dataset.regionPanel !== id
+        );
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => select(tab.dataset.regionTab!));
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", setupRegionSelector);
+  document.addEventListener("astro:page-load", setupRegionSelector);
+</script>

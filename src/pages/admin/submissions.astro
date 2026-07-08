@@ -60,7 +60,7 @@ const filters = ["all", "pending", "approved", "rejected"];
         .map(
           (s) => `
         <div class="bg-white rounded-2xl border border-[#EEF1FA] shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-4 flex flex-col sm:flex-row gap-4">
-          <a href="${esc(s.adUrl)}" target="_blank" rel="noopener noreferrer" class="block w-full sm:w-36 h-36 sm:h-auto rounded-xl overflow-hidden bg-[#0A1330] flex-shrink-0">
+          <a href="${esc(s.adUrl)}" target="_blank" rel="noopener noreferrer" class="block w-full sm:w-36 h-36 sm:h-auto rounded-xl overflow-hidden bg-[#080b14] flex-shrink-0">
             ${
               isVideo(s.fileType)
                 ? `<video src="${esc(s.adUrl)}" class="w-full h-full object-cover" muted></video>`

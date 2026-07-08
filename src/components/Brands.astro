@@ -21,10 +21,10 @@ const { title, highlight } = Astro.props as Props;
 
 <section
   id="brands-section"
-  class="py-12 pb-20 border-y border-white/5 bg-white/5 overflow-hidden transition-colors duration-300"
+  class="py-16 pb-24 overflow-hidden"
 >
   <div class="max-w-7xl mx-auto px-6 md:px-12 text-center mb-16">
-    <h3 class="font-poppins font-semibold text-[36px] leading-[54px]" data-reveal>
+    <h3 class="font-poppins font-semibold text-[36px] leading-[54px] text-[#0b1120]" data-reveal>
       {title}
       <span
         class="text-transparent bg-clip-text bg-gradient-to-r from-[#4068FC] to-[#00229D]"
@@ -86,15 +86,5 @@ const { title, highlight } = Astro.props as Props;
     100% {
       transform: translateX(-50%);
     }
-  }
-
-  :global([data-theme="light"]) #brands-section {
-    background: #ffffff !important;
-    border-top: 1px solid #e5e7eb !important;
-    border-bottom: 1px solid #e5e7eb !important;
-  }
-
-  :global([data-theme="light"]) #brands-section h3 {
-    color: #000000 !important;
   }
 </style>

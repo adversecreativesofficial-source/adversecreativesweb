@@ -19,6 +19,11 @@ import GSAPProvider from "../components/utilities/GSAPProvider.astro";
       (function () {
         var d = document.documentElement;
         d.classList.add("gsap-reveal");
+        // Home page is light by default (no FOUC); the scroll controller flips
+        // it to dark only while the "OUR SCREENS" section is in view.
+        if (location.pathname === "/" || location.pathname === "/index.html") {
+          d.setAttribute("data-theme", "light");
+        }
         window.addEventListener("load", function () {
           setTimeout(function () {
             if (!window.__gsapRevealReady) {

@@ -1,6 +1,6 @@
 // Firestore/Storage data helpers for the admin panel.
 // All reads/writes are also gated by firestore.rules / storage.rules.
-import { db, storage, firebaseConfig } from "./firebase";
+import { db, storage } from "./firebase";
 import type { AdminProfile } from "./auth";
 import {
   collection,
@@ -16,12 +16,6 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { initializeApp, deleteApp } from "firebase/app";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
 
 export const FRANCHISES = [
   { id: "bangalore", name: "Bangalore" },
@@ -113,8 +107,9 @@ export async function uploadScreenImage(screenId: string, file: File): Promise<s
 }
 
 // ---------------- Admins ----------------
+// Admin records are keyed by Google email (lowercased). Granting access is just
+// writing the record; the person signs in with Google whenever they like.
 export interface AdminRecord {
-  uid: string;
   email: string;
   role: "super" | "franchise";
   franchise?: string;
@@ -123,42 +118,32 @@ export interface AdminRecord {
 
 export async function listAdmins(): Promise<AdminRecord[]> {
   const snap = await getDocs(collection(db, "admins"));
-  return snap.docs.map((d) => ({ uid: d.id, ...(d.data() as object) }) as AdminRecord);
+  return snap.docs.map(
+    (d) => ({ email: d.id, ...(d.data() as object) }) as AdminRecord
+  );
 }
 
 /**
- * Create a franchise admin account WITHOUT disturbing the current super-admin
- * session, by using a throwaway secondary Firebase app for the sign-up. The
- * admin role doc is written via the primary app (the super admin), satisfying
- * the Firestore rules.
+ * Grant admin access to a Google account by email. No password / account
+ * creation — the person signs in with Google and is matched by email. Uses the
+ * lowercased email as the document id so it matches the auth-token email that
+ * firestore.rules checks against.
  */
-export async function createAdminAccount(params: {
+export function grantAdmin(params: {
   email: string;
-  password: string;
   role: "super" | "franchise";
   franchise?: string;
-}): Promise<void> {
-  const secondary = initializeApp(firebaseConfig, `admin-creator-${Date.now()}`);
-  try {
-    const secAuth = getAuth(secondary);
-    const cred = await createUserWithEmailAndPassword(
-      secAuth,
-      params.email,
-      params.password
-    );
-    await setDoc(doc(db, "admins", cred.user.uid), {
-      email: params.email,
-      role: params.role,
-      franchise: params.role === "franchise" ? params.franchise ?? null : null,
-      disabled: false,
-      createdAt: serverTimestamp(),
-    });
-    await signOut(secAuth);
-  } finally {
-    await deleteApp(secondary);
-  }
+}) {
+  const key = params.email.trim().toLowerCase();
+  return setDoc(doc(db, "admins", key), {
+    email: key,
+    role: params.role,
+    franchise: params.role === "franchise" ? params.franchise ?? null : null,
+    disabled: false,
+    createdAt: serverTimestamp(),
+  });
 }
 
-export function setAdminDisabled(uid: string, disabled: boolean) {
-  return updateDoc(doc(db, "admins", uid), { disabled });
+export function setAdminDisabled(email: string, disabled: boolean) {
+  return updateDoc(doc(db, "admins", email.trim().toLowerCase()), { disabled });
 }

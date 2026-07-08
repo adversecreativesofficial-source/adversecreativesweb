@@ -6,7 +6,11 @@ One-time setup to make the **Upload your ad** flow and the **/admin** panel work
 
 In <https://console.firebase.google.com> → project **adverse-website-67698**:
 
-1. **Authentication** → Get started → **Sign-in method** → enable **Email/Password**.
+1. **Authentication** → Get started → **Sign-in method** → enable **Google**
+   (the only sign-in method the admin panel uses). Then under
+   **Authentication → Settings → Authorized domains**, make sure `localhost`
+   and your production domain (e.g. `adverse-creatives.netlify.app`) are listed
+   — Google popup sign-in only works from authorized domains.
 2. **Firestore Database** → Create database → Production mode → pick a region
    (e.g. `asia-south1`). 
 3. **Storage** → Get started → Production mode → same region.
@@ -29,16 +33,20 @@ Firestore → Rules, and `storage.rules` into Storage → Rules, then Publish.
 ## 3. Create the first super admin
 
 The panel bootstraps from one super admin (rules only let an existing super
-create more). Create it manually once:
+create more). Admin records are keyed by **Google email** (lowercased), so you
+can grant access before anyone has signed in — no UID lookup needed:
 
-1. **Authentication → Users → Add user** → enter the super-admin email +
-   a password. Copy the new user's **UID**.
-2. **Firestore → Start collection** → Collection ID `admins` →
-   **Document ID = that UID** → add fields:
-   - `email` (string) — the same email
+1. **Firestore → Start collection** → Collection ID `admins` →
+   **Document ID = the super admin's Google email, lowercased**
+   (e.g. `adversecreatives.official@gmail.com`) → add fields:
+   - `email` (string) — the same email (lowercased)
    - `role` (string) — `super`
    - `disabled` (boolean) — `false`
-3. Go to **/admin/login**, sign in. You're in.
+2. Go to **/admin/login**, click **Continue with Google**, and sign in with
+   that account. You're in.
+
+From then on, the **Admins** page grants access to more people by email — they
+just sign in with Google, no passwords anywhere.
 
 From there, **Admins** (super-only) lets you create franchise admins
 (Bangalore / Kerala) without touching the console again.

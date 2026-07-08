@@ -3,7 +3,6 @@ import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
 import Stats from "../components/Stats.astro";
-import Marquee from "../components/Marquee.astro";
 import Showcase from "../components/Showcase.astro";
 import Brands from "../components/Brands.astro";
 import HowItWorks from "../components/HowItWorks.astro";
@@ -39,7 +38,6 @@ const {
   <main class="overflow-hidden">
     {hero && <Hero {...hero} />}
     {stats && <Stats {...stats} />}
-    <Marquee />
     {showcase && <Showcase {...showcase} />}
     {brands && <Brands {...brands} />}
     {howItWorks && <HowItWorks {...howItWorks} />}
