@@ -28,6 +28,13 @@ export const app: FirebaseApp = getApps().length
   ? getApp()
   : initializeApp(firebaseConfig);
 
-export const auth: Auth = getAuth(app);
+// `getAuth` throws synchronously on a missing/invalid apiKey, which would crash
+// the whole admin bundle at import time and leave the "Checking access…" gate
+// spinning forever. When config is absent (e.g. env vars not set in the build)
+// we skip it — callers already gate on `isFirebaseConfigured` and show a clear
+// message. `getFirestore`/`getStorage` don't validate the key, so they're safe.
+export const auth: Auth = isFirebaseConfigured
+  ? getAuth(app)
+  : (undefined as unknown as Auth);
 export const db: Firestore = getFirestore(app);
 export const storage: FirebaseStorage = getStorage(app);

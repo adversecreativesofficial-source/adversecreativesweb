@@ -52,7 +52,7 @@ import "../../styles/global.css";
     <script>
       import { adminSignInWithGoogle, getAdminProfile, adminSignOut } from "../../lib/auth";
       import { onAuthStateChanged } from "firebase/auth";
-      import { auth } from "../../lib/firebase";
+      import { auth, isFirebaseConfigured } from "../../lib/firebase";
 
       const errEl = document.getElementById("login-error")!;
       const btn = document.getElementById("google-btn") as HTMLButtonElement;
@@ -61,12 +61,16 @@ import "../../styles/global.css";
       const icon = btn.querySelector(".google-icon") as SVGElement;
 
       // If already signed in as an admin, skip straight to the dashboard.
-      const unsub = onAuthStateChanged(auth, async (user) => {
-        unsub();
-        if (user && (await getAdminProfile(user.email))) {
-          window.location.href = "/admin";
-        }
-      });
+      // Guarded: when Firebase isn't configured, `auth` is unavailable and we
+      // must not call into it (it would throw).
+      if (isFirebaseConfigured) {
+        const unsub = onAuthStateChanged(auth, async (user) => {
+          unsub();
+          if (user && (await getAdminProfile(user.email))) {
+            window.location.href = "/admin";
+          }
+        });
+      }
 
       const params = new URLSearchParams(location.search);
       if (params.get("denied")) {
@@ -83,6 +87,14 @@ import "../../styles/global.css";
         };
         const reason = reasons[params.get("error") ?? ""];
         if (reason) errEl.textContent = reason;
+      }
+
+      // Backend not configured (env vars missing in the build) → tell the user
+      // and disable the button so a click can't throw.
+      if (!isFirebaseConfigured) {
+        errEl.textContent =
+          "Admin backend isn't configured. Set the Firebase (PUBLIC_FIREBASE_*) environment variables and redeploy.";
+        btn.disabled = true;
       }
 
       const setLoading = (on: boolean) => {
