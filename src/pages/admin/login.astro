@@ -68,8 +68,21 @@ import "../../styles/global.css";
         }
       });
 
-      if (new URLSearchParams(location.search).get("denied")) {
+      const params = new URLSearchParams(location.search);
+      if (params.get("denied")) {
         errEl.textContent = "That Google account doesn't have admin access.";
+      } else {
+        const reasons: Record<string, string> = {
+          config:
+            "Admin backend isn't configured. Set the Firebase (PUBLIC_FIREBASE_*) environment variables and redeploy.",
+          access:
+            "Couldn't verify admin access — the database rules may not be deployed yet.",
+          timeout:
+            "Couldn't reach the sign-in service. Check your connection / Firebase config, then retry.",
+          auth: "Sign-in service error. Please try again.",
+        };
+        const reason = reasons[params.get("error") ?? ""];
+        if (reason) errEl.textContent = reason;
       }
 
       const setLoading = (on: boolean) => {

@@ -2,7 +2,7 @@
 // Roles live in Firestore `admins/{uid}`: { email, role, franchise?, disabled }.
 // Client gating here is UX only — real authorization is enforced by
 // firestore.rules / storage.rules.
-import { auth, db } from "./firebase";
+import { auth, db, isFirebaseConfigured } from "./firebase";
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -62,25 +62,57 @@ export function guardAdmin(
   opts: { requireSuper?: boolean } = {}
 ): Promise<AdminState> {
   return new Promise((resolve) => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      unsub();
-      if (!user) {
-        window.location.href = "/admin/login";
-        return;
-      }
-      const admin = await getAdminProfile(user.email);
-      if (!admin) {
-        // Signed in but not an (enabled) admin.
-        await adminSignOut();
-        window.location.href = "/admin/login?denied=1";
-        return;
-      }
-      if (opts.requireSuper && admin.role !== "super") {
-        window.location.href = "/admin";
-        return;
-      }
-      resolve({ user, admin });
-    });
+    // No Firebase config (e.g. env vars missing in production) → don't leave the
+    // "Checking access…" gate spinning forever; send to login with a reason.
+    if (!isFirebaseConfigured) {
+      window.location.href = "/admin/login?error=config";
+      return;
+    }
+
+    let settled = false;
+    const leave = (url: string) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      window.location.href = url;
+    };
+
+    // Safety net: auth normally responds in well under a second. If it never
+    // does (bad config / offline), bail out instead of hanging.
+    const timer = window.setTimeout(
+      () => leave("/admin/login?error=timeout"),
+      12000
+    );
+
+    const unsub = onAuthStateChanged(
+      auth,
+      async (user) => {
+        unsub();
+        if (settled) return;
+        if (!user) return leave("/admin/login");
+        try {
+          const admin = await getAdminProfile(user.email);
+          if (settled) return;
+          if (!admin) {
+            // Signed in but not an (enabled) admin.
+            await adminSignOut().catch(() => {});
+            return leave("/admin/login?denied=1");
+          }
+          if (opts.requireSuper && admin.role !== "super") {
+            return leave("/admin");
+          }
+          settled = true;
+          window.clearTimeout(timer);
+          resolve({ user, admin });
+        } catch {
+          // Most likely: firestore.rules not deployed yet (permission denied
+          // reading the admin record).
+          await adminSignOut().catch(() => {});
+          leave("/admin/login?error=access");
+        }
+      },
+      () => leave("/admin/login?error=auth")
+    );
   });
 }
 
