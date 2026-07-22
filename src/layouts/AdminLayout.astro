@@ -34,7 +34,7 @@ const icons: Record<string, string> = {
   </head>
   <body class="antialiased min-h-screen" style="background-color:#F4F6FC" data-require-super={requireSuper ? "1" : "0"}>
     <!-- Loading gate -->
-    <div id="admin-loading" class="fixed inset-0 z-50 flex items-center justify-center bg-[#080b14]">
+    <div id="admin-loading" class="fixed inset-0 z-50 flex items-center justify-center bg-[#080b14]" style="background: radial-gradient(60% 60% at 50% 0%, rgba(50,83,204,0.25), transparent 70%), #080b14;">
       <div class="flex flex-col items-center gap-3 text-white/80">
         <span class="w-8 h-8 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
         <span class="font-['Poppins'] text-sm">Checking access…</span>
@@ -43,7 +43,7 @@ const icons: Record<string, string> = {
 
     <div id="admin-app" class="hidden md:flex min-h-screen">
       <!-- Sidebar -->
-      <aside class="hidden md:flex md:flex-col w-64 bg-[#080b14] text-white p-5 fixed inset-y-0 left-0">
+      <aside class="hidden md:flex md:flex-col w-64 text-white p-5 fixed inset-y-0 left-0 border-r border-white/5" style="background: radial-gradient(70% 40% at 50% 0%, rgba(50,83,204,0.20), transparent 70%), #080b14;">
         <a href="/" class="font-outfit font-bold text-xl mb-8 px-2">AdVerse<span class="text-[#859EF8]"> Admin</span></a>
         <nav class="flex flex-col gap-1">
           {nav.map((item) => (
