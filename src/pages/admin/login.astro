@@ -127,9 +127,20 @@ import "../../styles/global.css";
             setLoading(false);
             return;
           }
-          errEl.textContent = code.includes("popup-blocked")
-            ? "Popup blocked. Allow popups for this site and try again."
-            : "Sign in failed. Please try again.";
+          // Surface the specific, actionable reason instead of a generic error.
+          if (code.includes("unauthorized-domain")) {
+            errEl.textContent = `This domain (${location.hostname}) isn't authorised in Firebase. Add it under Authentication → Settings → Authorized domains.`;
+          } else if (code.includes("operation-not-allowed")) {
+            errEl.textContent =
+              "Google sign-in isn't enabled for this project (Authentication → Sign-in method → Google).";
+          } else if (code.includes("popup-blocked")) {
+            errEl.textContent =
+              "Popup blocked. Allow popups for this site and try again.";
+          } else if (code.includes("network-request-failed")) {
+            errEl.textContent = "Network error. Check your connection and retry.";
+          } else {
+            errEl.textContent = `Sign in failed${code ? ` (${code})` : ""}. Please try again.`;
+          }
           setLoading(false);
         }
       });
