@@ -188,6 +188,19 @@ const regions = franchises.map((f) => {
               </p>
             )}
 
+            {/* Shareable catalog for this region — clients pick screens + enquire */}
+            <div class="mt-6">
+              <a
+                href={`/screens/${r.id}`}
+                class="inline-flex items-center gap-2 bg-white/[0.04] border border-white/10 hover:border-[#3253CC]/60 hover:bg-white/[0.06] text-white rounded-full px-6 py-3 font-['Poppins'] font-bold text-[14px] transition-all min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC]"
+              >
+                View &amp; share {r.name} screens
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[#859EF8]">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </div>
+
             {isComingSoon && (
               <a
                 href="/upload"
