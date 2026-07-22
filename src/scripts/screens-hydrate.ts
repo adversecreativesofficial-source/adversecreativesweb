@@ -1,105 +1,110 @@
-// Progressive hydration of the public "screen locations" grids.
-// The page renders static cards (from content.md) for instant paint + SEO.
-// After load, we lazily pull Firebase + admin-managed screens; if Firestore has
-// screens for a franchise, we replace that grid so admin edits show without a
-// rebuild. If Firebase isn't configured or has no data, the static cards stay.
+// Refresh the public "screen locations" section from Firestore so admin edits
+// appear without a rebuild. The static content.md render is the initial paint /
+// SEO fallback; this reconciles each region's totals + screen list with live
+// admin-managed data. Firebase is imported lazily so the contact page stays
+// light for visitors who never see the hydrated data.
 
-const grids = Array.from(document.querySelectorAll<HTMLElement>("[data-grid]"));
-if (grids.length) {
-  // Defer until idle so we never block first paint / interaction.
+type ScreenDoc = {
+  franchise?: string;
+  area?: string;
+  city?: string;
+  venue?: string;
+  footfall?: string;
+  mapLink?: string;
+  order?: number | string;
+};
+
+const section = document.getElementById("locations");
+const panels = section
+  ? Array.from(section.querySelectorAll<HTMLElement>("[data-region-panel]"))
+  : [];
+
+if (panels.length) {
   const start = () => hydrate().catch(() => {});
   const ric = (window as any).requestIdleCallback as
     | ((cb: () => void, opts?: { timeout: number }) => void)
     | undefined;
-  if (typeof ric === "function") {
-    ric(start, { timeout: 3000 });
-  } else {
-    window.addEventListener("load", () => setTimeout(start, 400));
-  }
+  if (typeof ric === "function") ric(start, { timeout: 3000 });
+  else window.addEventListener("load", () => setTimeout(start, 400));
 }
 
-const GRADIENTS = [
-  ["#3253CC", "#1B2C7A"],
-  ["#4068FC", "#00229D"],
-  ["#5A7BFF", "#2438B5"],
-  ["#2E45B8", "#0A1A66"],
-  ["#3A5BD9", "#13218C"],
-];
-function placeholder(venue: string) {
-  let hash = 0;
-  for (let i = 0; i < venue.length; i++) hash = (hash * 31 + venue.charCodeAt(i)) >>> 0;
-  const [from, to] = GRADIENTS[hash % GRADIENTS.length];
-  const initials = venue
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
-  return { from, to, initials };
-}
 const esc = (s: string) =>
-  (s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
+  (s ?? "").replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!)
+  );
 
-type ScreenDoc = {
-  id: string;
-  franchise: string;
-  area: string;
-  city: string;
-  venue: string;
-  footfall: string;
-  mapLink?: string;
-  imageUrl?: string;
-  order?: number;
-};
+function footfallTotal(list: ScreenDoc[]): number | null {
+  let sum = 0;
+  let has = false;
+  for (const l of list) {
+    const m = String(l.footfall ?? "").replace(/,/g, "").match(/\d+/);
+    if (m) {
+      sum += parseInt(m[0], 10);
+      has = true;
+    }
+  }
+  return has ? sum : null;
+}
 
-function cardHtml(s: ScreenDoc, comingSoon: boolean): string {
-  const ph = placeholder(s.venue || s.area || "AdVerse");
-  const media = s.imageUrl
-    ? `<img src="${esc(s.imageUrl)}" alt="${esc(s.venue)}, ${esc(s.area)}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 ${comingSoon ? "" : "group-hover:scale-105"}" />`
-    : `<div class="w-full h-full flex items-center justify-center" style="background:linear-gradient(135deg, ${ph.from}, ${ph.to});" role="img" aria-label="${esc(s.venue)}, ${esc(s.area)}">
-         <span class="font-['Outfit'] font-bold text-white/90 text-[40px] tracking-wide drop-shadow-sm">${esc(ph.initials)}</span>
-       </div>`;
-  const overlay = comingSoon
-    ? `<div class="absolute inset-0 bg-[#0A1A66]/45 backdrop-blur-[1px] flex items-center justify-center"><span class="font-['Poppins'] font-bold text-white text-[13px] tracking-[0.08em] uppercase bg-black/30 rounded-full px-4 py-1.5">Coming Soon</span></div>`
+function formatFootfall(n: number | null): string {
+  if (n == null) return "Coming soon";
+  if (n >= 1000) return `~${Math.round(n / 1000)}K`;
+  return `~${n}`;
+}
+
+function cardHtml(s: ScreenDoc): string {
+  const isLink = !!s.mapLink && s.mapLink !== "#";
+  const tag = isLink ? "a" : "div";
+  const attrs = isLink
+    ? `href="${esc(s.mapLink!)}" target="_blank" rel="noopener noreferrer"`
     : "";
-  const body = `
-    <div class="p-5">
-      <div class="flex items-start gap-3 mb-4">
-        <div class="w-9 h-9 rounded-[10px] bg-[#3253CC] flex items-center justify-center flex-shrink-0 text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4.5 h-4.5"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
-        </div>
-        <div>
-          <h4 class="font-['Poppins'] font-bold text-[17px] leading-[22px] text-white mb-0.5 transition-colors ${comingSoon ? "" : "group-hover:text-[#859EF8]"}">${esc(s.area)}</h4>
-          <span class="font-['Poppins'] font-bold text-[10px] leading-[15px] tracking-[0.08em] text-[#859EF8] uppercase">${esc(s.city)}</span>
-        </div>
+  const hover = isLink
+    ? "hover:border-[#3253CC]/50 hover:bg-white/[0.06] hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3253CC]"
+    : "opacity-90";
+  const arrow = isLink
+    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-[#859EF8] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10"/></svg>`
+    : "";
+  const titleHover = isLink ? "group-hover:text-[#859EF8] transition-colors" : "";
+  return `<${tag} ${attrs} class="group flex items-start gap-3 bg-white/[0.04] border border-white/10 rounded-[14px] p-4 text-left transition-all duration-300 ${hover}">
+    <div class="w-9 h-9 rounded-[10px] bg-[#3253CC]/15 flex items-center justify-center flex-shrink-0 text-[#859EF8]">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+    </div>
+    <div class="min-w-0 flex-1">
+      <div class="flex items-center justify-between gap-2">
+        <h4 class="font-['Poppins'] font-bold text-[15px] leading-[20px] text-white truncate ${titleHover}">${esc(s.area ?? "")}</h4>
+        ${arrow}
       </div>
-      <div class="bg-white/[0.04] border border-white/5 rounded-[8px] p-3 flex justify-between items-center gap-2">
-        <span class="font-['Poppins'] font-medium text-[14px] leading-[20px] text-[#d4dbf0] truncate">${esc(s.venue)}</span>
-        <span class="bg-[#3253CC]/20 rounded-[6px] px-2.5 py-1 font-['Poppins'] font-bold text-[10px] leading-[15px] text-[#859EF8] whitespace-nowrap flex-shrink-0">${esc(s.footfall)}</span>
-      </div>
-    </div>`;
-  const inner = `<div class="relative aspect-[4/3] overflow-hidden">${media}${overlay}</div>${body}`;
-  const cls = `group relative block bg-white/[0.04] rounded-[16px] overflow-hidden border border-white/10 text-left transition-all duration-300 ${
-    comingSoon ? "opacity-90" : "hover:shadow-[0px_12px_40px_rgba(50,83,204,0.25)] hover:border-[#3253CC]/40 hover:-translate-y-1"
-  }`;
-  return comingSoon
-    ? `<div class="${cls}">${inner}</div>`
-    : `<a href="${esc(s.mapLink || "#")}" target="_blank" rel="noopener noreferrer" class="${cls}">${inner}</a>`;
+      <p class="font-['Poppins'] text-[13px] leading-[18px] text-[#9aa6c6] truncate">${esc(s.venue ?? "")}</p>
+      <span class="inline-block mt-1.5 font-['Poppins'] font-bold text-[10px] tracking-[0.06em] text-[#859EF8] uppercase">${esc(s.footfall ?? "")}</span>
+    </div>
+  </${tag}>`;
 }
 
 async function hydrate() {
-  const { isFirebaseConfigured } = await import("../lib/firebase");
+  const { isFirebaseConfigured, db } = await import("../lib/firebase");
   if (!isFirebaseConfigured) return;
-  const { listScreens } = await import("../lib/admin-data");
-  const all = (await listScreens()) as ScreenDoc[];
-  if (!all.length) return; // keep static content as the source of truth
+  const { collection, getDocs } = await import("firebase/firestore");
+  const snap = await getDocs(collection(db, "screens"));
+  const all = snap.docs.map((d) => d.data() as ScreenDoc);
+  if (!all.length) return; // keep the static content as the source of truth
 
-  for (const grid of grids) {
-    const franchise = grid.dataset.grid!;
-    const comingSoon = grid.dataset.status === "coming_soon";
-    const rows = all
-      .filter((s) => s.franchise === franchise)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    if (!rows.length) continue; // no Firestore screens for this franchise → keep static
-    grid.innerHTML = rows.map((s) => cardHtml(s, comingSoon)).join("");
+  for (const panel of panels) {
+    const fid = panel.dataset.regionPanel!;
+    const list = all
+      .filter((s) => (s.franchise ?? "bangalore") === fid)
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+    const setTotal = (key: string, v: string) => {
+      const el = panel.querySelector(`[data-total="${key}"]`);
+      if (el) el.textContent = v;
+    };
+    setTotal("locations", String(list.length));
+    setTotal("venues", String(list.length));
+    setTotal("footfall", formatFootfall(footfallTotal(list)));
+
+    const wrap = panel.querySelector<HTMLElement>("[data-screens-wrap]");
+    const grid = panel.querySelector<HTMLElement>("[data-screens-grid]");
+    if (grid) grid.innerHTML = list.map(cardHtml).join("");
+    if (wrap) wrap.classList.toggle("hidden", list.length === 0);
   }
 }

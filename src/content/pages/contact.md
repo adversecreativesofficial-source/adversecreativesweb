@@ -42,9 +42,9 @@ mapSection:
       tagline: "Live now across the city's busiest neighborhoods."
     - id: "kerala"
       name: "Kerala"
-      status: "coming_soon"
+      status: "active"
       order: 2
-      tagline: "Launching soon. Reserve your screens before we go live."
+      tagline: "Now live in Kerala — starting with Kochi."
   locations:
     - area: "Koramangala"
       city: "BANGALORE"
